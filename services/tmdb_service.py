@@ -131,6 +131,12 @@ class TMDBService:
                 movie_data['title'] = movie_data_en.get('title', 'Unknown')
                 logger.info(f"Using English title instead of: {title_id}")
             
+            # Fallback runtime to English version if not available in Indonesian
+            if not movie_data.get('runtime'):
+                movie_data['runtime'] = movie_data_en.get('runtime')
+                if movie_data.get('runtime'):
+                    logger.info(f"Using English runtime: {movie_data['runtime']} minutes")
+            
             logger.info(f"Successfully fetched movie: {movie_data.get('title')}")
             return movie_data
         except Exception as e:
@@ -174,6 +180,12 @@ class TMDBService:
             if not name_id or self._is_non_latin(name_id):
                 tv_data['name'] = tv_data_en.get('name', 'Unknown')
                 logger.info(f"Using English name instead of: {name_id}")
+            
+            # Fallback episode_run_time to English version if not available in Indonesian
+            if not tv_data.get('episode_run_time'):
+                tv_data['episode_run_time'] = tv_data_en.get('episode_run_time')
+                if tv_data.get('episode_run_time'):
+                    logger.info(f"Using English episode_run_time: {tv_data['episode_run_time']}")
             
             logger.info(f"Successfully fetched TV series: {tv_data.get('name')}")
             return tv_data
