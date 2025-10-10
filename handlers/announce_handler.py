@@ -64,23 +64,37 @@ class AnnounceHandler:
                     'message': f"Channel/group '{parsed_command.target}' tidak ditemukan"
                 }
             
-            # Step 2: Get movie/series info jika ada media_type + title_year (OPTIONAL)
+            # Step 2: Get movie/series info (OPTIONAL)
             movie_info = None
-            if parsed_command.media_type and parsed_command.title_year:
-                logger.info(f"Searching {parsed_command.media_type} with title: {parsed_command.title_year}")
-                movie_info = await search_content(
-                    self.tmdb_service,
-                    parsed_command.media_type, 
-                    parsed_command.title_year
-                )
+            
+            if parsed_command.media_type:
+                # User specified media type, berarti mau search TMDB
+                search_query = None
                 
-                if not movie_info:
-                    return {
-                        'success': False,
-                        'message': f"{parsed_command.media_type.capitalize()} '{parsed_command.title_year}' tidak ditemukan"
-                    }
+                # Priority 1: Use title_year if provided (format: [Judul 2024])
+                if parsed_command.title_year:
+                    search_query = parsed_command.title_year
+                    logger.info(f"Searching {parsed_command.media_type} with title+year: {search_query}")
+                # Priority 2: Use custom_prompt as search query
+                elif parsed_command.custom_prompt:
+                    search_query = parsed_command.custom_prompt.strip()
+                    logger.info(f"Searching {parsed_command.media_type} with prompt as query: {search_query}")
+                
+                if search_query:
+                    movie_info = await search_content(
+                        self.tmdb_service,
+                        parsed_command.media_type, 
+                        search_query
+                    )
+                    
+                    if not movie_info:
+                        return {
+                            'success': False,
+                            'message': f"{parsed_command.media_type.capitalize()} '{search_query}' tidak ditemukan di TMDB"
+                        }
             else:
-                logger.info("No media type/title provided, generating announcement from context only")
+                # Context-only mode
+                logger.info("No media type provided, generating announcement from context only")
             
             # Step 3: Generate announcement dengan AI
             logger.info("Generating announcement with Gemini AI...")
