@@ -32,6 +32,7 @@ class TelegramHandler:
         self._is_connected = False
         self._me: Optional[User] = None
         self._client: Optional[TelegramClient] = None
+        self._config = None  # Store config for later use
     
     async def initialize(self) -> TelegramClient:
         """
@@ -57,6 +58,9 @@ class TelegramHandler:
             else:
                 config = self.settings.get_telegram_config()
                 logger.info("Using primary Telegram account")
+            
+            # Store config for authorization
+            self._config = config
             
             # Create client instance
             self._client = TelegramClient(
@@ -92,7 +96,8 @@ class TelegramHandler:
             Exception: Jika gagal authorize
         """
         try:
-            phone = self.settings.telegram_phone
+            # Get phone from stored config
+            phone = self._config['phone'] if self._config else self.settings.telegram_phone
             
             # Validate phone format
             if not phone.startswith('+'):

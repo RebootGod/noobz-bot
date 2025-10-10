@@ -76,11 +76,11 @@ async def main():
     telegram = TelegramHandler(use_secondary=True)
     
     try:
-        # Start client (will prompt for login if needed)
-        await telegram.start()
+        # Initialize client (will prompt for login if needed)
+        await telegram.initialize()
         
         # Get account info
-        me = await telegram.client.get_me()
+        me = telegram.get_me()
         
         print("\n" + "=" * 60)
         print("✅ SUCCESS!")
@@ -109,7 +109,7 @@ async def main():
         print(f"\n❌ Error: {e}")
         sys.exit(1)
     finally:
-        await telegram.stop()
+        await telegram.disconnect()
 
 if __name__ == '__main__':
     asyncio.run(main())
