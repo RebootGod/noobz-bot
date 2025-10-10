@@ -76,13 +76,6 @@ Parameter:
 • **Context**: Konteks/tema untuk AI (opsional, default "Ada film baru")
 • **ID Film**: ID film dari TMDB dalam [kurung siku]
 
-Fitur:
-✅ Generate caption AI dengan Gemini
-✅ Kirim poster film otomatis
-✅ Info lengkap: judul, rating, durasi, genre
-✅ Link nonton di noobz.space
-✅ Promosi channel t.me/noobzspace
-
 ---
 
 🎬 **InfoFilm Command**
@@ -102,43 +95,6 @@ Contoh:
 Parameter:
 • **Username**: Username Telegram target (harus pakai @)
 • **ID Film**: ID film dari TMDB dalam [kurung siku]
-
-Fitur:
-✅ Kirim via personal message
-✅ Poster film + info lengkap
-✅ Rating, durasi, genre, sinopsis
-✅ Bahasa Indonesia (fallback ke English)
-
----
-
-📖 **Cara Cari ID Film TMDB**
-
-1. Buka https://www.themoviedb.org/
-2. Search film yang dicari
-3. Lihat URL film: `themoviedb.org/movie/550988-joker`
-4. ID film adalah angka setelah `/movie/`: **550988**
-
-Contoh:
-• Joker (2019): ID **550988**
-• The Matrix (1999): ID **603**
-• Inception (2010): ID **27205**
-
----
-
-ℹ️ **Tips Penggunaan**
-
-• Semua command dikirim di **Saved Messages**
-• Bot akan reply hasilnya di Saved Messages
-• Target harus sudah exist (channel/group/user)
-• Untuk channel/group: bot harus punya akses
-• Untuk user: bot harus bisa kirim PM ke mereka
-
----
-
-❓ **Butuh Bantuan?**
-
-Hubungi admin jika ada error atau pertanyaan:
-Channel: t.me/noobzspace
 """
         return help_text.strip()
 
