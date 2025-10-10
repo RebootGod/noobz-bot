@@ -1,0 +1,17 @@
+# Telegram Client
+telethon==1.34.0
+
+# AI Integration
+google-generativeai==0.3.2
+
+# TMDB API
+requests==2.31.0
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# Async utilities
+aiohttp==3.9.1
+
+# Logging
+colorlog==6.8.0
