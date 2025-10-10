@@ -80,8 +80,21 @@ class MessageFormatter:
         message += f"⭐ Rating: {rating}/10\n"
         # Always show duration (even if fallback)
         message += f"⏱️ Durasi: {runtime_text if runtime_text else 'N/A'}\n"
-        message += f"🎭 Genre: {genre_text}\n\n"
-        message += f"🔗 Nonton di: {self.website_url}\n"
+        message += f"🎭 Genre: {genre_text}\n"
+
+        # Add season/episode info for series
+        if movie_info and movie_info.get('seasons'):
+            season_lines = []
+            for season in movie_info['seasons']:
+                season_number = season.get('season_number')
+                episode_count = season.get('episode_count')
+                # Only show real seasons (skip specials/season 0)
+                if season_number and season_number > 0 and episode_count:
+                    season_lines.append(f"Season {season_number} = {episode_count} Episode")
+            if season_lines:
+                message += "\n" + "\n".join(season_lines) + "\n"
+
+        message += f"\n🔗 Nonton di: {self.website_url}\n"
         message += f"📢 Join channel: t.me/noobzspace"
         
         return message
