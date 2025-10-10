@@ -90,7 +90,9 @@ class MessageFormatter:
                 episode_count = season.get('episode_count')
                 # Only show real seasons (skip specials/season 0)
                 if season_number and season_number > 0 and episode_count:
-                    season_lines.append(f"Season {season_number} = {episode_count} Episode")
+                    # Add emoji for each season line
+                    emoji = "📺" if season_number == 1 else "🎬"
+                    season_lines.append(f"{emoji} Season {season_number} = {episode_count} Episode")
             if season_lines:
                 message += "\n" + "\n".join(season_lines) + "\n"
 
