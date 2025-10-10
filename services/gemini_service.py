@@ -88,14 +88,20 @@ class GeminiService:
                 raise Exception("Empty response from Gemini")
             
             announcement = response.text.strip()
-            
-            # Truncate to max 400 characters if needed
+            MIN_LENGTH = 200
             MAX_LENGTH = 400
+            # If announcement too short, pad with extra info
+            if len(announcement) < MIN_LENGTH:
+                logger.warning(f"Announcement too short ({len(announcement)} chars), padding...")
+                extra = f"\nSinopsis: {movie_info.get('overview', '')}" if movie_info.get('overview') else ''
+                announcement = (announcement + extra).strip()
+                if len(announcement) < MIN_LENGTH:
+                    announcement += "\nYuk nonton di noobz.space dan join channel t.me/noobzspace!"
+            # Truncate to max 400 characters if needed
             if len(announcement) > MAX_LENGTH:
                 announcement = announcement[:MAX_LENGTH].rsplit(' ', 1)[0] + '...'
                 logger.info(f"Announcement truncated to {MAX_LENGTH} characters")
-            
-            logger.info("Successfully generated announcement")
+            logger.info(f"Announcement final length: {len(announcement)} characters")
             return announcement
             
         except Exception as e:
