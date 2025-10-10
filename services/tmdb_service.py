@@ -4,6 +4,7 @@ Handle API calls ke The Movie Database (TMDB).
 """
 
 import logging
+import re
 from typing import Optional, Dict, Any, List
 import aiohttp
 
@@ -41,6 +42,27 @@ class TMDBService:
         """Close aiohttp session."""
         if self._session and not self._session.closed:
             await self._session.close()
+    
+    def _is_non_latin(self, text: str) -> bool:
+        """
+        Check if text contains non-Latin characters (Korean, Chinese, Japanese, etc.).
+        
+        Args:
+            text: Text to check
+            
+        Returns:
+            True if text contains CJK (Chinese-Japanese-Korean) or other non-Latin characters
+        """
+        if not text:
+            return False
+        
+        # Unicode ranges for CJK characters
+        # Hangul (Korean): \uAC00-\uD7AF
+        # Hiragana/Katakana (Japanese): \u3040-\u309F, \u30A0-\u30FF
+        # CJK Unified Ideographs (Chinese/Japanese/Korean): \u4E00-\u9FFF
+        cjk_pattern = re.compile(r'[\uAC00-\uD7AF\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]')
+        
+        return bool(cjk_pattern.search(text))
     
     async def _make_request(self, endpoint: str, params: Optional[Dict] = None) -> Dict[str, Any]:
         """
@@ -102,9 +124,12 @@ class TMDBService:
             if not movie_data.get('overview') or movie_data.get('overview').strip() == '':
                 movie_data['overview'] = movie_data_en.get('overview', '')
             
-            # Fallback title if needed (usually titles are the same)
-            if not movie_data.get('title') or movie_data.get('title').strip() == '':
+            # Fallback title to English if Indonesian version has non-Latin characters
+            # (Korean, Chinese, Japanese, etc.) or is empty
+            title_id = movie_data.get('title', '')
+            if not title_id or self._is_non_latin(title_id):
                 movie_data['title'] = movie_data_en.get('title', 'Unknown')
+                logger.info(f"Using English title instead of: {title_id}")
             
             logger.info(f"Successfully fetched movie: {movie_data.get('title')}")
             return movie_data
@@ -143,9 +168,12 @@ class TMDBService:
             if not tv_data.get('overview') or tv_data.get('overview').strip() == '':
                 tv_data['overview'] = tv_data_en.get('overview', '')
             
-            # Fallback name if needed
-            if not tv_data.get('name') or tv_data.get('name').strip() == '':
+            # Fallback name to English if Indonesian version has non-Latin characters
+            # (Korean, Chinese, Japanese, etc.) or is empty
+            name_id = tv_data.get('name', '')
+            if not name_id or self._is_non_latin(name_id):
                 tv_data['name'] = tv_data_en.get('name', 'Unknown')
+                logger.info(f"Using English name instead of: {name_id}")
             
             logger.info(f"Successfully fetched TV series: {tv_data.get('name')}")
             return tv_data
