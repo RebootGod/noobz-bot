@@ -22,6 +22,8 @@ class ParsedCommand:
     keyword: Optional[str] = None
     year: Optional[int] = None
     tmdb_id: Optional[int] = None
+    media_type: Optional[str] = None  # 'movies' atau 'series'
+    title_year: Optional[str] = None  # Format: "Judul Tahun" e.g. "Fight Club 1999"
     custom_prompt: Optional[str] = None
     custom_synopsis: Optional[str] = None  # For [sinopsis] tag
     raw_text: str = ""
@@ -36,10 +38,11 @@ class MessageParser:
     """
     
     # Regex patterns
-    # Pattern untuk handle quoted strings: "Target Name" atau Target
-    ANNOUNCE_PATTERN = r'^/announce\s+(?:"([^"]+)"|(\S+))\s+(.+)$'
+    # Pattern untuk handle [movies/series] di awal, lalu target (quoted atau unquoted), lalu prompt
+    # Format: /announce [movies/series] Target Context [optional tags]
+    ANNOUNCE_PATTERN = r'^/announce\s+\[(movies|series)\]\s+(?:"([^"]+)"|(\S+))\s+(.+)$'
     INFOFILM_PATTERN = r'^/infofilm\s+@(\w+)\s+\[(\d+)\]$'
-    TMDB_ID_PATTERN = r'\[(\d+)\]'
+    TITLE_YEAR_PATTERN = r'\[([^\[\]]+\s+\d{4})\]'  # Match [Judul Tahun] e.g. [Fight Club 1999]
     SYNOPSIS_PATTERN = r'\[sinopsis\]\s*(.+?)(?=\[|$)'  # Match [sinopsis] content until next [ or end
     
     def __init__(self):
@@ -77,8 +80,8 @@ class MessageParser:
         """
         Parse /announce command.
         
-        Format: /announce <channel/group name> <prompt with [tmdbid]>
-        Support quoted target: /announce "Channel Name" prompt
+        Format: /announce [movies/series] <channel/group name> <prompt> [judul tahun]
+        Support quoted target: /announce [movies] "Channel Name" prompt [Fight Club 1999]
         
         Args:
             message_text: Raw message text
@@ -94,12 +97,13 @@ class MessageParser:
                     command='announce',
                     raw_text=message_text,
                     is_valid=False,
-                    error_message='Invalid format. Use: /announce <channel/group name> <prompt>'
+                    error_message='Invalid format. Use: /announce [movies/series] <channel/group name> <prompt> [judul tahun]'
                 )
             
-            # Group 1 = quoted target, Group 2 = unquoted target, Group 3 = prompt
-            target = match.group(1) if match.group(1) else match.group(2)
-            prompt = match.group(3).strip()
+            # Group 1 = media_type, Group 2 = quoted target, Group 3 = unquoted target, Group 4 = prompt
+            media_type = match.group(1).lower()
+            target = match.group(2) if match.group(2) else match.group(3)
+            prompt = match.group(4).strip()
             
             # Remove quotes from target if present
             target = target.strip().strip('"')
@@ -112,20 +116,21 @@ class MessageParser:
                 # Remove [sinopsis]...content dari prompt
                 prompt = re.sub(self.SYNOPSIS_PATTERN, '', prompt, flags=re.IGNORECASE | re.DOTALL).strip()
             
-            # Extract TMDB ID jika ada
-            tmdb_id = None
-            tmdb_match = re.search(self.TMDB_ID_PATTERN, prompt)
-            if tmdb_match:
-                tmdb_id = int(tmdb_match.group(1))
-                # Remove TMDB ID dari prompt untuk custom prompt
-                custom_prompt = re.sub(self.TMDB_ID_PATTERN, '', prompt).strip()
+            # Extract title+year jika ada [judul tahun]
+            title_year = None
+            title_match = re.search(self.TITLE_YEAR_PATTERN, prompt)
+            if title_match:
+                title_year = title_match.group(1).strip()
+                # Remove [judul tahun] dari prompt untuk custom prompt
+                custom_prompt = re.sub(self.TITLE_YEAR_PATTERN, '', prompt).strip()
             else:
                 custom_prompt = prompt
             
             return ParsedCommand(
                 command='announce',
                 target=target,
-                tmdb_id=tmdb_id,
+                media_type=media_type,
+                title_year=title_year,
                 custom_prompt=custom_prompt,
                 custom_synopsis=custom_synopsis,
                 raw_text=message_text,

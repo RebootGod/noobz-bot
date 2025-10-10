@@ -12,6 +12,7 @@ from services.multi_account_manager import get_multi_account_manager
 from utils.message_parser import ParsedCommand
 from utils.chat_finder import ChatFinder
 from utils.message_formatter import get_message_formatter
+from handlers.announce_content_search import search_content
 
 logger = logging.getLogger(__name__)
 
@@ -63,19 +64,23 @@ class AnnounceHandler:
                     'message': f"Channel/group '{parsed_command.target}' tidak ditemukan"
                 }
             
-            # Step 2: Get movie info jika ada TMDB ID (OPTIONAL)
+            # Step 2: Get movie/series info jika ada title+year (OPTIONAL)
             movie_info = None
-            if parsed_command.tmdb_id:
-                logger.info(f"Fetching movie info for TMDB ID: {parsed_command.tmdb_id}")
-                movie_info = await self._get_movie_info(parsed_command.tmdb_id)
+            if parsed_command.title_year:
+                logger.info(f"Searching {parsed_command.media_type} with title: {parsed_command.title_year}")
+                movie_info = await search_content(
+                    self.tmdb_service,
+                    parsed_command.media_type, 
+                    parsed_command.title_year
+                )
                 
                 if not movie_info:
                     return {
                         'success': False,
-                        'message': f"Film dengan ID {parsed_command.tmdb_id} tidak ditemukan"
+                        'message': f"{parsed_command.media_type.capitalize()} '{parsed_command.title_year}' tidak ditemukan"
                     }
             else:
-                logger.info("No TMDB ID provided, generating announcement from context only")
+                logger.info("No title provided, generating announcement from context only")
             
             # Step 3: Generate announcement dengan AI
             logger.info("Generating announcement with Gemini AI...")
@@ -183,29 +188,6 @@ class AnnounceHandler:
             return entity
         except Exception as e:
             logger.error(f"Error finding target: {e}")
-            return None
-    
-    async def _get_movie_info(self, tmdb_id: int) -> Optional[dict]:
-        """
-        Get movie info dari TMDB.
-        
-        Args:
-            tmdb_id: TMDB movie ID
-            
-        Returns:
-            Movie info dictionary atau None
-        """
-        try:
-            # Try as movie first
-            try:
-                movie_info = await self.tmdb_service.get_movie_by_id(tmdb_id)
-                return movie_info
-            except:
-                # If failed, try as TV series
-                tv_info = await self.tmdb_service.get_tv_by_id(tmdb_id)
-                return tv_info
-        except Exception as e:
-            logger.error(f"Error fetching movie info: {e}")
             return None
     
     async def _generate_announcement(

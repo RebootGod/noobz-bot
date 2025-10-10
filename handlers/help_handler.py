@@ -57,24 +57,29 @@ class HelpHandler:
 🤖 **Noobz Bot - Daftar Command**
 
 📢 **Announce Command**
-Kirim announcement film ke channel/group dengan AI-powered content.
+Kirim announcement film/series ke channel/group dengan AI-powered content.
 
 Format:
 ```
-/announce [Target] [Context] [ID Film]
+/announce [movies/series] [Target] [Context] [Judul Tahun]
+/announce [movies/series] [Target] [Context]
+/announce [movies/series] [Target] [Context] [sinopsis] (Custom synopsis) [Judul Tahun]
 ```
 
 Contoh:
 ```
-/announce Test Channel Ada film baru nih! [550988]
-/announce @channelku Rekomendasi film bagus [603]
-/announce "My Group" Film action seru [157336]
+/announce [movies] Test Channel Ada film baru nih! [Fight Club 1999]
+/announce [series] @channelku Rekomendasi series bagus [Breaking Bad 2008]
+/announce [movies] "My Group" Film action seru
+/announce [movies] Noobz Space [sinopsis] Film tentang robot AI yang jatuh cinta [Her 2013]
 ```
 
 Parameter:
+• **[movies/series]**: **WAJIB!** Pilih tipe konten
 • **Target**: Nama channel/group (bisa pakai "" jika ada spasi) atau username @channelname
 • **Context**: Konteks/tema untuk AI (opsional, default "Ada film baru")
-• **ID Film**: ID film dari TMDB dalam [kurung siku]
+• **[Judul Tahun]**: Judul + tahun rilis (opsional, contoh: [Inception 2010])
+• **[sinopsis]**: Tag untuk custom synopsis (opsional)
 
 ---
 
