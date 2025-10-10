@@ -15,6 +15,7 @@ from utils.message_parser import get_message_parser
 from utils.message_formatter import get_message_formatter
 from handlers.announce_handler import create_announce_handler
 from handlers.infofilm_handler import create_infofilm_handler
+from handlers.help_handler import create_help_handler
 
 # Setup logging
 logging.basicConfig(
@@ -45,6 +46,7 @@ class NoobzBot:
         self.client = None
         self.announce_handler = None
         self.infofilm_handler = None
+        self.help_handler = None
         self._is_running = False
     
     async def initialize(self):
@@ -71,6 +73,7 @@ class NoobzBot:
             logger.info("Initializing command handlers...")
             self.announce_handler = create_announce_handler(self.client)
             self.infofilm_handler = create_infofilm_handler(self.client)
+            self.help_handler = create_help_handler(self.client)
             
             logger.info("✅ All services initialized successfully")
             
@@ -134,6 +137,8 @@ class NoobzBot:
                     result = await self.announce_handler.handle(parsed_command)
                 elif parsed_command.command == 'infofilm':
                     result = await self.infofilm_handler.handle(parsed_command)
+                elif parsed_command.command == 'help':
+                    result = await self.help_handler.handle(parsed_command)
                 elif parsed_command.command == 'unknown':
                     result = {
                         'success': False,

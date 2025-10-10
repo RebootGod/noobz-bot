@@ -59,12 +59,14 @@ class MessageParser:
             return self._parse_announce(message_text)
         elif message_text.startswith('/infofilm'):
             return self._parse_infofilm(message_text)
+        elif message_text.startswith('/help'):
+            return self._parse_help(message_text)
         else:
             return ParsedCommand(
                 command='unknown',
                 raw_text=message_text,
                 is_valid=False,
-                error_message='Unknown command. Use /announce or /infofilm'
+                error_message='Unknown command. Use /announce, /infofilm, or /help'
             )
     
     def _parse_announce(self, message_text: str) -> ParsedCommand:
@@ -181,6 +183,24 @@ class MessageParser:
                 is_valid=False,
                 error_message=f'Error parsing command: {str(e)}'
             )
+    
+    def _parse_help(self, message_text: str) -> ParsedCommand:
+        """
+        Parse /help command.
+        
+        Format: /help
+        
+        Args:
+            message_text: Raw message text
+            
+        Returns:
+            ParsedCommand object
+        """
+        return ParsedCommand(
+            command='help',
+            raw_text=message_text,
+            is_valid=True
+        )
     
     def extract_tmdb_ids(self, text: str) -> List[int]:
         """
