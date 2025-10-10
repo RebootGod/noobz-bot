@@ -39,28 +39,41 @@ class MultiAccountManager:
         self.current_account_index: int = 0
         self._initialized = False
     
-    async def initialize(self):
+    async def initialize(self, primary_client=None):
         """
         Initialize semua Telegram accounts.
+        
+        Args:
+            primary_client: Optional primary TelegramClient (if already initialized)
         """
         if self._initialized:
             return
         
         logger.info("Initializing Multi-Account Manager...")
         
-        # Initialize primary account
+        # Use existing primary client or initialize new one
         from services.telegram_client import TelegramHandler
         
-        primary_handler = TelegramHandler()
-        primary_client = await primary_handler.initialize()
-        
-        self.accounts.append(AccountStatus(
-            account_id=1,
-            client=primary_client,
-            is_available=True
-        ))
-        
-        logger.info(f"✅ Primary account initialized: {self.settings.telegram_phone}")
+        if primary_client:
+            # Reuse existing primary client to avoid database lock
+            logger.info("Using existing primary account client")
+            self.accounts.append(AccountStatus(
+                account_id=1,
+                client=primary_client,
+                is_available=True
+            ))
+            logger.info(f"✅ Primary account initialized: {self.settings.telegram_phone}")
+        else:
+            # Initialize new primary client (fallback)
+            primary_handler = TelegramHandler()
+            primary_client = await primary_handler.initialize()
+            
+            self.accounts.append(AccountStatus(
+                account_id=1,
+                client=primary_client,
+                is_available=True
+            ))
+            logger.info(f"✅ Primary account initialized: {self.settings.telegram_phone}")
         
         # Initialize secondary account if configured
         if self.settings.has_secondary_account():

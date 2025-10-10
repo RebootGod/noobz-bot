@@ -74,7 +74,8 @@ class NoobzBot:
             # Initialize Multi-Account Manager (if secondary account configured)
             if self.settings.has_secondary_account():
                 logger.info("Initializing Multi-Account Manager...")
-                await self.multi_account_manager.initialize()
+                # Pass primary client to avoid database lock
+                await self.multi_account_manager.initialize(primary_client=self.client)
                 
                 # Show account status
                 status = self.multi_account_manager.get_account_status()
