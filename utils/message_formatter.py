@@ -84,6 +84,23 @@ class MessageFormatter:
         genres = movie_info.get('genres', [])
         genre_names = ', '.join([g['name'] for g in genres]) if genres else 'N/A'
         
+        # Runtime/Duration
+        runtime_text = ''
+        if content_type == 'movie':
+            runtime = movie_info.get('runtime', 0)
+            if runtime and runtime > 0:
+                hours = runtime // 60
+                minutes = runtime % 60
+                if hours > 0:
+                    runtime_text = f"{hours}h {minutes}m"
+                else:
+                    runtime_text = f"{minutes}m"
+        else:
+            # For TV series, use episode_run_time
+            episode_runtime = movie_info.get('episode_run_time', [])
+            if episode_runtime and len(episode_runtime) > 0:
+                runtime_text = f"{episode_runtime[0]}m per episode"
+        
         # Build message
         message = f"""
 🎬 **{title}** ({year})
@@ -92,7 +109,13 @@ class MessageFormatter:
 {overview}
 
 ⭐ **Rating:** {rating}/10
-🎭 **Genre:** {genre_names}
+"""
+        
+        # Add duration if available
+        if runtime_text:
+            message += f"⏱️ **Durasi:** {runtime_text}\n"
+        
+        message += f"""🎭 **Genre:** {genre_names}
 📅 **{date_label}:** {release_date or 'N/A'}
 """
         

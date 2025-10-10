@@ -73,20 +73,39 @@ class TMDBService:
     
     async def get_movie_by_id(self, movie_id: int) -> Dict[str, Any]:
         """
-        Get movie details by TMDB ID.
+        Get movie details by TMDB ID with Indonesian language priority.
         
         Args:
             movie_id: TMDB movie ID
             
         Returns:
-            Dictionary berisi movie details
+            Dictionary berisi movie details (Indonesian if available, English fallback)
             
         Raises:
             Exception: Jika movie tidak ditemukan atau request gagal
         """
         try:
             endpoint = f"/movie/{movie_id}"
-            movie_data = await self._make_request(endpoint)
+            
+            # Try Indonesian first
+            params_id = {'language': 'id-ID'}
+            movie_data_id = await self._make_request(endpoint, params_id)
+            
+            # Get English version for fallback
+            params_en = {'language': 'en-US'}
+            movie_data_en = await self._make_request(endpoint, params_en)
+            
+            # Merge: Use Indonesian if available, fallback to English
+            movie_data = movie_data_id.copy()
+            
+            # Fallback overview to English if Indonesian is empty
+            if not movie_data.get('overview') or movie_data.get('overview').strip() == '':
+                movie_data['overview'] = movie_data_en.get('overview', '')
+            
+            # Fallback title if needed (usually titles are the same)
+            if not movie_data.get('title') or movie_data.get('title').strip() == '':
+                movie_data['title'] = movie_data_en.get('title', 'Unknown')
+            
             logger.info(f"Successfully fetched movie: {movie_data.get('title')}")
             return movie_data
         except Exception as e:
@@ -95,20 +114,39 @@ class TMDBService:
     
     async def get_tv_by_id(self, tv_id: int) -> Dict[str, Any]:
         """
-        Get TV series details by TMDB ID.
+        Get TV series details by TMDB ID with Indonesian language priority.
         
         Args:
             tv_id: TMDB TV series ID
             
         Returns:
-            Dictionary berisi TV series details
+            Dictionary berisi TV series details (Indonesian if available, English fallback)
             
         Raises:
             Exception: Jika series tidak ditemukan atau request gagal
         """
         try:
             endpoint = f"/tv/{tv_id}"
-            tv_data = await self._make_request(endpoint)
+            
+            # Try Indonesian first
+            params_id = {'language': 'id-ID'}
+            tv_data_id = await self._make_request(endpoint, params_id)
+            
+            # Get English version for fallback
+            params_en = {'language': 'en-US'}
+            tv_data_en = await self._make_request(endpoint, params_en)
+            
+            # Merge: Use Indonesian if available, fallback to English
+            tv_data = tv_data_id.copy()
+            
+            # Fallback overview to English if Indonesian is empty
+            if not tv_data.get('overview') or tv_data.get('overview').strip() == '':
+                tv_data['overview'] = tv_data_en.get('overview', '')
+            
+            # Fallback name if needed
+            if not tv_data.get('name') or tv_data.get('name').strip() == '':
+                tv_data['name'] = tv_data_en.get('name', 'Unknown')
+            
             logger.info(f"Successfully fetched TV series: {tv_data.get('name')}")
             return tv_data
         except Exception as e:
