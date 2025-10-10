@@ -96,26 +96,37 @@ class AnnounceHandler:
                 # Context-only mode
                 logger.info("No media type provided, generating announcement from context only")
             
-            # Step 3: Generate announcement dengan AI
-            logger.info("Generating announcement with Gemini AI...")
-            try:
-                announcement = await self._generate_announcement(
-                    movie_info, 
-                    parsed_command.custom_prompt,
-                    parsed_command.custom_synopsis
+            # Step 3: Generate/format announcement
+            if parsed_command.use_gemini:
+                # Generate dengan Gemini AI
+                logger.info("Generating announcement with Gemini AI...")
+                try:
+                    announcement = await self._generate_announcement(
+                        movie_info, 
+                        parsed_command.custom_prompt,
+                        parsed_command.custom_synopsis
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to generate announcement: {e}")
+                    return {
+                        'success': False,
+                        'message': f"Gagal generate announcement: {str(e)}"
+                    }
+                
+                # Step 4: Format announcement
+                formatted_message = self.formatter.format_announcement(
+                    announcement, 
+                    movie_info
                 )
-            except Exception as e:
-                logger.error(f"Failed to generate announcement: {e}")
-                return {
-                    'success': False,
-                    'message': f"Gagal generate announcement: {str(e)}"
-                }
-            
-            # Step 4: Format announcement
-            formatted_message = self.formatter.format_announcement(
-                announcement, 
-                movie_info  # Can be None if no TMDB ID
-            )
+            else:
+                # No Gemini, just format movie info or use custom prompt
+                logger.info("No [gemini] tag, formatting without AI generation")
+                if movie_info:
+                    # Format movie info langsung tanpa AI enhancement
+                    formatted_message = self.formatter.format_movie_info(movie_info)
+                else:
+                    # Just send custom prompt as-is
+                    formatted_message = parsed_command.custom_prompt or "No content provided"
             
             # Step 5: Send ke target
             logger.info(f"Sending announcement to {parsed_command.target}...")

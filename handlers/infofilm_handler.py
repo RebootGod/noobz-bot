@@ -100,13 +100,51 @@ class InfoFilmHandler:
                 # Context-only mode: tidak ada movie info
                 logger.info("No media type provided, sending context-only message")
             
-            # Step 3: Format info message
+            # Step 3: Format/generate info message
             if movie_info:
-                info_message = self.formatter.format_movie_info(movie_info)
+                if parsed_command.use_gemini:
+                    # Generate enhanced description dengan Gemini
+                    logger.info("Generating enhanced info with Gemini AI...")
+                    try:
+                        from services.gemini_service import get_gemini_service
+                        gemini_service = get_gemini_service()
+                        
+                        enhanced_text = await gemini_service.generate_announcement(
+                            movie_info,
+                            parsed_command.custom_prompt,
+                            parsed_command.custom_synopsis
+                        )
+                        
+                        # Format dengan enhancement
+                        info_message = self.formatter.format_announcement(enhanced_text, movie_info)
+                    except Exception as e:
+                        logger.error(f"Failed to generate with Gemini: {e}")
+                        # Fallback to standard format
+                        info_message = self.formatter.format_movie_info(movie_info)
+                else:
+                    # Standard format tanpa AI
+                    info_message = self.formatter.format_movie_info(movie_info)
+                
                 title = movie_info.get('title') or movie_info.get('name', 'Unknown')
             else:
                 # Context-only message
-                info_message = parsed_command.custom_prompt
+                if parsed_command.use_gemini:
+                    # Generate dengan Gemini for context-only
+                    logger.info("Generating context message with Gemini AI...")
+                    try:
+                        from services.gemini_service import get_gemini_service
+                        gemini_service = get_gemini_service()
+                        
+                        info_message = await gemini_service.generate_custom_content(
+                            parsed_command.custom_prompt
+                        )
+                    except Exception as e:
+                        logger.error(f"Failed to generate with Gemini: {e}")
+                        info_message = parsed_command.custom_prompt
+                else:
+                    # Raw text
+                    info_message = parsed_command.custom_prompt
+                
                 title = "Info"
             
             # Step 4: Send ke target user

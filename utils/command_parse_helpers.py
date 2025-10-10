@@ -11,7 +11,9 @@ logger = logging.getLogger(__name__)
 
 # Regex patterns
 MEDIA_TYPE_PATTERN = r'\[(movies|series)\]'
-TITLE_YEAR_PATTERN = r'\[([^\[\]]+\s+\d{4})\]'
+GEMINI_PATTERN = r'\[gemini\]'  # Match [gemini] tag
+# Match [Judul 2024] or [Judul] but NOT [movies], [series], [gemini], [sinopsis]
+TITLE_YEAR_PATTERN = r'\[(?!movies\]|series\]|gemini\]|sinopsis\])([^\[\]]+)\]'
 SYNOPSIS_PATTERN = r'\[sinopsis\]\s*(.+?)(?=\[|$)'
 
 
@@ -33,6 +35,26 @@ def extract_media_type(prompt: str) -> Tuple[Optional[str], str]:
         prompt = re.sub(MEDIA_TYPE_PATTERN, '', prompt, flags=re.IGNORECASE).strip()
     
     return media_type, prompt
+
+
+def extract_gemini_tag(prompt: str) -> Tuple[bool, str]:
+    """
+    Extract [gemini] tag dari prompt.
+    
+    Args:
+        prompt: Raw prompt text
+        
+    Returns:
+        Tuple of (use_gemini, cleaned_prompt)
+    """
+    use_gemini = False
+    gemini_match = re.search(GEMINI_PATTERN, prompt, re.IGNORECASE)
+    if gemini_match:
+        use_gemini = True
+        # Remove [gemini] dari prompt
+        prompt = re.sub(GEMINI_PATTERN, '', prompt, flags=re.IGNORECASE).strip()
+    
+    return use_gemini, prompt
 
 
 def extract_custom_synopsis(prompt: str) -> Tuple[Optional[str], str]:

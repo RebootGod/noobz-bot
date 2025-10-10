@@ -10,6 +10,7 @@ from dataclasses import dataclass
 
 from utils.command_parse_helpers import (
     extract_media_type,
+    extract_gemini_tag,
     extract_custom_synopsis,
     extract_title_year,
     validate_media_type_requirement
@@ -30,7 +31,8 @@ class ParsedCommand:
     year: Optional[int] = None
     tmdb_id: Optional[int] = None
     media_type: Optional[str] = None  # 'movies' atau 'series'
-    title_year: Optional[str] = None  # Format: "Judul Tahun" e.g. "Fight Club 1999"
+    title_year: Optional[str] = None  # Format: "Judul Tahun" atau "Judul" saja
+    use_gemini: bool = False  # True jika ada [gemini] tag
     custom_prompt: Optional[str] = None
     custom_synopsis: Optional[str] = None  # For [sinopsis] tag
     raw_text: str = ""
@@ -115,8 +117,9 @@ class MessageParser:
             # Remove quotes from target if present
             target = target.strip().strip('"')
             
-            # Extract tags using helpers
+            # Extract tags using helpers (order matters!)
             media_type, prompt = extract_media_type(prompt)
+            use_gemini, prompt = extract_gemini_tag(prompt)
             custom_synopsis, prompt = extract_custom_synopsis(prompt)
             title_year, custom_prompt = extract_title_year(prompt)
             
@@ -134,6 +137,7 @@ class MessageParser:
                 command='announce',
                 target=target,
                 media_type=media_type,
+                use_gemini=use_gemini,
                 title_year=title_year,
                 custom_prompt=custom_prompt,
                 custom_synopsis=custom_synopsis,
@@ -180,8 +184,9 @@ class MessageParser:
             username = match.group(1).strip()
             prompt = match.group(2).strip()
             
-            # Extract tags using helpers
+            # Extract tags using helpers (order matters!)
             media_type, prompt = extract_media_type(prompt)
+            use_gemini, prompt = extract_gemini_tag(prompt)
             custom_synopsis, prompt = extract_custom_synopsis(prompt)
             title_year, custom_prompt = extract_title_year(prompt)
             
@@ -199,6 +204,7 @@ class MessageParser:
                 command='infofilm',
                 target=username,
                 media_type=media_type,
+                use_gemini=use_gemini,
                 title_year=title_year,
                 custom_prompt=custom_prompt,
                 custom_synopsis=custom_synopsis,

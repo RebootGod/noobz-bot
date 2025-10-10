@@ -57,56 +57,64 @@ class HelpHandler:
 🤖 **Noobz Bot - Daftar Command**
 
 📢 **Announce Command**
-Kirim announcement ke channel/group dengan AI-powered content.
+Kirim announcement ke channel/group.
 
 Format:
 ```
 /announce [Target] [Context]
-/announce [Target] [movies/series] [Context] [Judul Tahun]
-/announce [Target] [movies/series] [Context] [sinopsis] (Custom synopsis) [Judul Tahun]
+/announce [Target] [gemini] [Context]
+/announce [Target] [movies/series] [Context] [Judul]
+/announce [Target] [movies/series] [gemini] [Context] [Judul 2024]
+/announce [Target] [movies/series] [gemini] [Context] [sinopsis] (synopsis) [Judul]
 ```
 
 Contoh:
 ```
-/announce "Noobz Space" Ada konten baru nih!
-/announce TestChannel [movies] Film action keren [Inception 2010]
-/announce @channelku [series] Rekomendasi bagus [Breaking Bad 2008]
-/announce "My Group" [movies] [sinopsis] Film tentang mimpi berlapis yang mind-blowing [Inception 2010]
+/announce "Noobz Space" Ada konten baru hari ini!
+/announce TestChannel [gemini] Cek konten baru yang keren!
+/announce @channelku [movies] Film bagus [Inception]
+/announce "My Group" [series] [gemini] Series keren [Breaking Bad 2008]
+/announce TestChannel [movies] [gemini] [sinopsis] Film tentang mimpi berlapis [Inception]
 ```
 
 Parameter:
-• **Target**: Nama channel/group (bisa pakai "" jika ada spasi) atau username @channelname
-• **Context**: Konteks/tema untuk AI
-• **[movies/series]**: Opsional - pilih tipe konten (wajib jika pakai [Judul Tahun])
-• **[Judul Tahun]**: Opsional - judul + tahun rilis (contoh: [Fight Club 1999])
-• **[sinopsis]**: Opsional - custom synopsis untuk AI generation
+• **Target**: Nama channel/group (bisa pakai "" jika ada spasi)
+• **[gemini]**: Opsional - enhance dengan AI generation
+• **[movies/series]**: Opsional - pilih tipe konten untuk search TMDB
+• **[Judul]** atau **[Judul 2024]**: Judul film/series (tahun opsional)
+• **[sinopsis]**: Opsional - custom synopsis
+• **Context**: Konteks/tema announcement
 
 ---
 
 🎬 **InfoFilm Command**
-Kirim info film/series ke user tertentu via personal message.
+Kirim info film/series ke user via personal message.
 
 Format:
 ```
 /infofilm @username [Context]
-/infofilm @username [movies/series] [Context] [Judul Tahun]
-/infofilm @username [movies/series] [Context] [sinopsis] (Custom synopsis) [Judul Tahun]
+/infofilm @username [gemini] [Context]
+/infofilm @username [movies/series] [Context] [Judul]
+/infofilm @username [movies/series] [gemini] [Context] [Judul 2024]
+/infofilm @username [movies/series] [gemini] [Context] [sinopsis] (synopsis) [Judul]
 ```
 
 Contoh:
 ```
 /infofilm @johndoe Ada rekomendasi nih
-/infofilm @username [movies] Film action keren [Inception 2010]
-/infofilm @johndoe [series] Series bagus [Breaking Bad 2008]
-/infofilm @username [movies] [sinopsis] Film tentang mimpi berlapis [Inception 2010]
+/infofilm @username [gemini] Cek film ini
+/infofilm @user [movies] Film bagus [Inception]
+/infofilm @johndoe [series] [gemini] Series keren [Breaking Bad 2008]
+/infofilm @username [movies] [gemini] [sinopsis] Film mind-bending [Inception]
 ```
 
 Parameter:
 • **@username**: Username Telegram target (harus pakai @)
-• **Context**: Konteks/pesan yang ingin dikirim
-• **[movies/series]**: Opsional - pilih tipe konten (wajib jika pakai [Judul Tahun])
-• **[Judul Tahun]**: Opsional - judul + tahun rilis (contoh: [Fight Club 1999])
-• **[sinopsis]**: Opsional - custom synopsis untuk AI generation
+• **[gemini]**: Opsional - enhance dengan AI generation
+• **[movies/series]**: Opsional - pilih tipe konten untuk search TMDB
+• **[Judul]** atau **[Judul 2024]**: Judul film/series (tahun opsional)
+• **[sinopsis]**: Opsional - custom synopsis
+• **Context**: Konteks/pesan
 """
         return help_text.strip()
 
