@@ -11,6 +11,7 @@ from telethon import events
 from config.settings import get_settings
 from services.telegram_client import get_telegram_handler
 from services.gemini_service import get_gemini_service
+from services.multi_account_manager import get_multi_account_manager
 from utils.message_parser import get_message_parser
 from utils.message_formatter import get_message_formatter
 from handlers.announce_handler import create_announce_handler
@@ -40,6 +41,7 @@ class NoobzBot:
         self.settings = get_settings()
         self.telegram_handler = get_telegram_handler()
         self.gemini_service = get_gemini_service()
+        self.multi_account_manager = get_multi_account_manager()
         self.message_parser = get_message_parser()
         self.formatter = get_message_formatter()
         
@@ -68,6 +70,19 @@ class NoobzBot:
             logger.info("Initializing Gemini AI...")
             logger.info(f"Using model: {self.settings.gemini_model}")
             self.gemini_service.initialize(model_name=self.settings.gemini_model)
+            
+            # Initialize Multi-Account Manager (if secondary account configured)
+            if self.settings.has_secondary_account():
+                logger.info("Initializing Multi-Account Manager...")
+                await self.multi_account_manager.initialize()
+                
+                # Show account status
+                status = self.multi_account_manager.get_account_status()
+                logger.info(f"📊 Active accounts: {len(status)}")
+                for acc_status in status:
+                    logger.info(f"  Account {acc_status['account_id']}: {'✅ Available' if acc_status['is_available'] else '❌ Limited'}")
+            else:
+                logger.info("Multi-Account Manager: Disabled (no secondary account configured)")
             
             # Initialize handlers
             logger.info("Initializing command handlers...")
@@ -169,6 +184,11 @@ class NoobzBot:
         """Shutdown bot dan cleanup resources."""
         if self._is_running:
             logger.info("Shutting down bot...")
+            
+            # Disconnect Multi-Account Manager if initialized
+            if self.settings.has_secondary_account():
+                logger.info("Disconnecting multi-account manager...")
+                await self.multi_account_manager.disconnect_all()
             
             # Disconnect Telegram
             await self.telegram_handler.disconnect()
