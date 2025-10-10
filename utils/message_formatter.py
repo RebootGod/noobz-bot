@@ -67,11 +67,8 @@ class MessageFormatter:
         message = f"🎬 **{title}**\n\n"
         message += f"{generated_text}\n\n"
         message += f"⭐ Rating: {rating}/10\n"
-        
-        # Always show duration or fallback
-        if runtime_text:
-            message += f"⏱️ Durasi: {runtime_text}\n"
-        
+        # Always show duration (even if fallback)
+        message += f"⏱️ Durasi: {runtime_text if runtime_text else 'N/A'}\n"
         message += f"🎭 Genre: {genre_text}\n\n"
         message += f"🔗 Nonton di: {self.website_url}\n"
         message += f"📢 Join channel: t.me/noobzspace"
@@ -131,31 +128,23 @@ class MessageFormatter:
                 runtime_text = f"{episode_runtime[0]}m per episode"
         
         # Build message
-        message = f"""
+    message = f"""
 🎬 **{title}** ({year})
 
 📝 **Synopsis:**
 {overview}
 
 ⭐ **Rating:** {rating}/10
-"""
-        
-        # Add duration if available
-        if runtime_text:
-            message += f"⏱️ **Durasi:** {runtime_text}\n"
-        
-        message += f"""🎭 **Genre:** {genre_names}
+⏱️ **Durasi:** {runtime_text if runtime_text else 'N/A'}
+🎭 **Genre:** {genre_names}
 📅 **{date_label}:** {release_date or 'N/A'}
 """
-        
-        # Add website link
-        if tmdb_id:
-            message += f"\n🔗 **Nonton di:** {self.website_url}\n"
-            message += f"� **Join channel:** t.me/noobzspace\n"
-        
-        message += "\n✨ Selamat menonton!"
-        
-        return message.strip()
+    # Add website link
+    if tmdb_id:
+        message += f"\n🔗 **Nonton di:** {self.website_url}\n"
+        message += f"� **Join channel:** t.me/noobzspace\n"
+    message += "\n✨ Selamat menonton!"
+    return message.strip()
     
     def format_search_results(
         self, 
