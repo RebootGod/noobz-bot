@@ -43,9 +43,9 @@ class MessageFormatter:
             tmdb_id = movie_info.get('id')
             
             if tmdb_id:
-                # Buat link ke website
-                movie_url = f"{self.website_url}/movie/{tmdb_id}"
-                message += f"\n\n🔗 Tonton sekarang: {movie_url}"
+                # Buat link ke website (domain only)
+                message += f"\n\n🔗 Nonton di: {self.website_url}"
+                message += f"\n� Join channel: t.me/noobzspace"
         
         return message
     
@@ -98,9 +98,8 @@ class MessageFormatter:
         
         # Add website link
         if tmdb_id:
-            content_path = 'tv' if content_type == 'tv' else 'movie'
-            movie_url = f"{self.website_url}/{content_path}/{tmdb_id}"
-            message += f"\n🔗 **Nonton di Noobz Space:** {movie_url}\n"
+            message += f"\n🔗 **Nonton di:** {self.website_url}\n"
+            message += f"� **Join channel:** t.me/noobzspace\n"
         
         message += "\n✨ Selamat menonton!"
         

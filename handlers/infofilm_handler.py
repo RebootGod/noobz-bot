@@ -104,11 +104,39 @@ class InfoFilmHandler:
             title = content_info.get('title') or content_info.get('name', 'Unknown')
             logger.info(f"Sending info to @{parsed_command.target}...")
             
-            await self.client.send_message(
-                target_user,
-                info_message,
-                parse_mode='markdown'
-            )
+            # Send poster image if available
+            poster_path = content_info.get('poster_path')
+            if poster_path:
+                poster_url = self.tmdb_service.get_poster_url(poster_path)
+                if poster_url:
+                    try:
+                        await self.client.send_file(
+                            target_user,
+                            poster_url,
+                            caption=info_message,
+                            parse_mode='markdown'
+                        )
+                    except Exception as e:
+                        logger.warning(f"Failed to send poster, sending text only: {e}")
+                        await self.client.send_message(
+                            target_user,
+                            info_message,
+                            parse_mode='markdown'
+                        )
+                else:
+                    # No poster URL, send text only
+                    await self.client.send_message(
+                        target_user,
+                        info_message,
+                        parse_mode='markdown'
+                    )
+            else:
+                # No poster, send text only
+                await self.client.send_message(
+                    target_user,
+                    info_message,
+                    parse_mode='markdown'
+                )
             
             return {
                 'success': True,

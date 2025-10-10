@@ -88,11 +88,39 @@ class AnnounceHandler:
             
             # Step 5: Send ke target
             logger.info(f"Sending announcement to {parsed_command.target}...")
-            await self.client.send_message(
-                target_entity,
-                formatted_message,
-                parse_mode='markdown'
-            )
+            
+            # Send poster image if available
+            if movie_info and movie_info.get('poster_path'):
+                poster_url = self.tmdb_service.get_poster_url(movie_info['poster_path'])
+                if poster_url:
+                    try:
+                        await self.client.send_file(
+                            target_entity,
+                            poster_url,
+                            caption=formatted_message,
+                            parse_mode='markdown'
+                        )
+                    except Exception as e:
+                        logger.warning(f"Failed to send poster, sending text only: {e}")
+                        await self.client.send_message(
+                            target_entity,
+                            formatted_message,
+                            parse_mode='markdown'
+                        )
+                else:
+                    # No poster, send text only
+                    await self.client.send_message(
+                        target_entity,
+                        formatted_message,
+                        parse_mode='markdown'
+                    )
+            else:
+                # No movie info or poster, send text only
+                await self.client.send_message(
+                    target_entity,
+                    formatted_message,
+                    parse_mode='markdown'
+                )
             
             return {
                 'success': True,

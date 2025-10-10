@@ -6,9 +6,11 @@ Bot Telegram untuk mengirim announcement dan info film ke channel, group, atau p
 
 - 🤖 **AI-Powered Announcements**: Generate announcement menarik menggunakan Gemini 2.0 Flash
 - 🎬 **Movie Info Sender**: Kirim info film dari TMDB ke user tertentu
-- 📢 **Multi-Destination**: Kirim ke channel, group, atau personal message
+- �️ **Movie Posters**: Auto-send poster film dengan announcement/info
+- �📢 **Multi-Destination**: Kirim ke channel, group, atau personal message
 - 💬 **Saved Messages Control**: Control bot dari Saved Messages (chat dengan diri sendiri)
 - ⚡ **Multiple AI Models**: Support Gemini 2.0 Flash, 1.5 Flash, dan 1.5 Pro
+- 🔗 **Channel Promotion**: Auto-include channel link (t.me/noobzspace)
 
 ## Prerequisites
 
@@ -69,7 +71,8 @@ Kirim announcement dengan AI-generated content ke channel/group.
 Bot akan:
 1. Cari info film dari TMDB berdasarkan ID (550 = Fight Club)
 2. Generate announcement menarik dengan Gemini AI
-3. Kirim ke channel/group "Noobz Space"
+3. Send poster film + announcement ke channel/group "Noobz Space"
+4. Include link noobz.space dan channel Telegram
 
 ### Command: /infofilm
 
@@ -87,8 +90,9 @@ Kirim info film ke user tertentu dengan personal message.
 
 Bot akan:
 1. Cari film "Qodrat" (2023) di TMDB
-2. Format info film dengan link ke noobz.space
-3. Kirim personal message ke @userA
+2. Format info film dengan poster + details
+3. Send poster film + info ke personal message @userA
+4. Include link noobz.space dan channel Telegram
 
 ## Project Structure
 
