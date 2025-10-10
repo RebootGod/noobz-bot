@@ -23,25 +23,28 @@ class TMDEpisodeRuntime(TMDBBase):
             Rata-rata runtime (menit) atau None jika tidak ada data
         """
         runtimes = []
-        for season in seasons:
-            season_number = season.get('season_number')
-            if not season_number or season_number == 0:
-                continue  # Skip specials
-            try:
-                endpoint = f"/tv/{tv_id}/season/{season_number}"
-                season_data = await self._make_request(endpoint, {'language': 'id-ID'})
-                episodes = season_data.get('episodes', [])
-                for ep in episodes:
-                    rt = ep.get('runtime')
-                    if isinstance(rt, int) and rt > 0:
-                        runtimes.append(rt)
-            except Exception as e:
-                logger.warning(f"Failed to fetch season {season_number} for tv_id {tv_id}: {e}")
-                continue
-        if runtimes:
-            avg_runtime = round(sum(runtimes) / len(runtimes))
-            return avg_runtime
-        return None
+        try:
+            for season in seasons:
+                season_number = season.get('season_number')
+                if not season_number or season_number == 0:
+                    continue  # Skip specials
+                try:
+                    endpoint = f"/tv/{tv_id}/season/{season_number}"
+                    season_data = await self._make_request(endpoint, {'language': 'id-ID'})
+                    episodes = season_data.get('episodes', [])
+                    for ep in episodes:
+                        rt = ep.get('runtime')
+                        if isinstance(rt, int) and rt > 0:
+                            runtimes.append(rt)
+                except Exception as e:
+                    logger.warning(f"Failed to fetch season {season_number} for tv_id {tv_id}: {e}")
+                    continue
+            if runtimes:
+                avg_runtime = round(sum(runtimes) / len(runtimes))
+                return avg_runtime
+            return None
+        finally:
+            await self.close()
 
 def get_tmdb_episode_runtime_service():
     return TMDEpisodeRuntime()
