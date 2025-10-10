@@ -23,7 +23,8 @@ class MessageFormatter:
     def format_announcement(
         self, 
         generated_text: str, 
-        movie_info: Optional[Dict[str, Any]] = None
+        movie_info: Optional[Dict[str, Any]] = None,
+        avg_episode_runtime: Optional[int] = None
     ) -> str:
         """
         Format announcement message.
@@ -66,8 +67,10 @@ class MessageFormatter:
         
         # Format runtime
         runtime_text = ""
-        # For series, calculate average episode duration if possible
-        if movie_info and movie_info.get('episode_run_time') and isinstance(movie_info['episode_run_time'], list):
+        # Use avg_episode_runtime if provided (for series)
+        if avg_episode_runtime:
+            runtime_text = f"{avg_episode_runtime}m (rata-rata per episode)"
+        elif movie_info and movie_info.get('episode_run_time') and isinstance(movie_info['episode_run_time'], list):
             episode_runtimes = [rt for rt in movie_info['episode_run_time'] if isinstance(rt, int) and rt > 0]
             if episode_runtimes:
                 avg_runtime = round(sum(episode_runtimes) / len(episode_runtimes))

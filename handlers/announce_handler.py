@@ -66,11 +66,10 @@ class AnnounceHandler:
             
             # Step 2: Get movie/series info (OPTIONAL)
             movie_info = None
-            
+            avg_episode_runtime = None
             if parsed_command.media_type:
                 # User specified media type, berarti mau search TMDB
                 search_query = None
-                
                 # Priority 1: Use title_year if provided (format: [Judul 2024])
                 if parsed_command.title_year:
                     search_query = parsed_command.title_year
@@ -79,19 +78,24 @@ class AnnounceHandler:
                 elif parsed_command.custom_prompt:
                     search_query = parsed_command.custom_prompt.strip()
                     logger.info(f"Searching {parsed_command.media_type} with prompt as query: {search_query}")
-                
                 if search_query:
                     movie_info = await search_content(
                         self.tmdb_service,
                         parsed_command.media_type, 
                         search_query
                     )
-                    
                     if not movie_info:
                         return {
                             'success': False,
                             'message': f"{parsed_command.media_type.capitalize()} '{search_query}' tidak ditemukan di TMDB"
                         }
+                    # If series, fetch average episode runtime
+                    if parsed_command.media_type == 'series' and movie_info and movie_info.get('seasons'):
+                        from services.tmdb_episode_runtime import get_tmdb_episode_runtime_service
+                        episode_runtime_service = get_tmdb_episode_runtime_service()
+                        avg_episode_runtime = await episode_runtime_service.get_average_episode_runtime(
+                            movie_info['id'], movie_info['seasons']
+                        )
             else:
                 # Context-only mode
                 logger.info("No media type provided, generating announcement from context only")
@@ -112,11 +116,11 @@ class AnnounceHandler:
                         'success': False,
                         'message': f"Gagal generate announcement: {str(e)}"
                     }
-                
                 # Step 4: Format announcement
                 formatted_message = self.formatter.format_announcement(
                     announcement, 
-                    movie_info
+                    movie_info,
+                    avg_episode_runtime=avg_episode_runtime
                 )
             else:
                 # No Gemini, just format movie info or use custom prompt
