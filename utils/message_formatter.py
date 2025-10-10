@@ -128,7 +128,7 @@ class MessageFormatter:
                 runtime_text = f"{episode_runtime[0]}m per episode"
         
         # Build message
-    message = f"""
+        message = f"""
 🎬 **{title}** ({year})
 
 📝 **Synopsis:**
@@ -139,12 +139,12 @@ class MessageFormatter:
 🎭 **Genre:** {genre_names}
 📅 **{date_label}:** {release_date or 'N/A'}
 """
-    # Add website link
-    if tmdb_id:
-        message += f"\n🔗 **Nonton di:** {self.website_url}\n"
-        message += f"� **Join channel:** t.me/noobzspace\n"
-    message += "\n✨ Selamat menonton!"
-    return message.strip()
+        # Add website link
+        if tmdb_id:
+            message += f"\n🔗 **Nonton di:** {self.website_url}\n"
+            message += f"� **Join channel:** t.me/noobzspace\n"
+        message += "\n✨ Selamat menonton!"
+        return message.strip()
     
     def format_search_results(
         self, 
