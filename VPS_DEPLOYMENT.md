@@ -7,6 +7,10 @@
 - SSH access ke VPS
 - Python 3.9+ (recommended 3.11)
 - Internet connection
+- **API Keys Ready:**
+  - Telegram API (https://my.telegram.org/apps)
+  - Gemini API (https://makersuite.google.com/app/apikey)
+  - TMDB API (https://www.themoviedb.org/settings/api)
 
 ---
 
@@ -79,17 +83,29 @@ nano .env
 
 **Isi credentials di `.env`:**
 ```env
+# Telegram Configuration
 TELEGRAM_API_ID=your_api_id_here
 TELEGRAM_API_HASH=your_api_hash_here
 TELEGRAM_PHONE=+62xxxxxxxxxxxxx
 
+# Gemini AI Configuration
 GEMINI_API_KEY=your_gemini_api_key_here
+
+# Gemini Model (Options: gemini-2.0-flash-exp, gemini-1.5-flash, gemini-1.5-pro)
+GEMINI_MODEL=gemini-2.0-flash-exp
+
+# TMDB Configuration
 TMDB_API_KEY=your_tmdb_api_key_here
 
+# Website & Bot Configuration
 WEBSITE_URL=https://noobz.space
 BOT_NAME=Noobz Announcement Bot
 DEBUG=False
 ```
+
+**⚡ Default model: `gemini-2.0-flash-exp` (Fastest & Latest)**
+- See [GEMINI_MODELS.md](GEMINI_MODELS.md) untuk comparison models
+- Free tier: 1500 requests/minute - more than enough!
 
 **Save dan exit:**
 - Nano: `Ctrl+X`, tekan `Y`, tekan `Enter`
@@ -111,9 +127,46 @@ python main.py
 3. Copy code dan paste ke terminal
 4. Jika ada 2FA, masukkan password
 5. Session file akan dibuat otomatis
-6. Bot akan running!
+6. **Bot akan show:**
+   ```
+   Starting Noobz Announcement Bot
+   Initializing Gemini AI...
+   Using model: gemini-2.0-flash-exp
+   Bot is running as: YourName (@yourusername)
+   Listening for commands in Saved Messages...
+   ```
+7. Bot sekarang running!
 
 **Test:** Kirim command di Saved Messages Telegram kamu
+
+Press `Ctrl+C` to stop testing.
+
+---
+
+## 🤖 Gemini AI Model Configuration (Optional)
+
+Bot default menggunakan **Gemini 2.0 Flash** (fastest & latest). 
+
+### Change Model:
+
+```bash
+# Edit .env
+nano ~/noobz-bot/.env
+
+# Change model line:
+GEMINI_MODEL=gemini-1.5-pro  # For best quality
+# or
+GEMINI_MODEL=gemini-1.5-flash  # For most stable
+# or keep default
+GEMINI_MODEL=gemini-2.0-flash-exp  # Fastest (default)
+```
+
+**Model Comparison:**
+- `gemini-2.0-flash-exp` ⚡ - Fastest, latest (1500 RPM) **[DEFAULT]**
+- `gemini-1.5-flash` - Stable, production (1000 RPM)
+- `gemini-1.5-pro` - Best quality (360 RPM)
+
+**Full guide:** See [GEMINI_MODELS.md](GEMINI_MODELS.md)
 
 ---
 
@@ -414,6 +467,51 @@ rm ~/noobz-bot/*.session
 python main.py
 ```
 
+### Issue: Gemini API Error
+
+**Error: "Model not found"**
+```bash
+# Check model name in .env
+cat ~/noobz-bot/.env | grep GEMINI_MODEL
+
+# Valid options:
+# - gemini-2.0-flash-exp (default)
+# - gemini-1.5-flash
+# - gemini-1.5-pro
+# - gemini-pro
+
+# Fix typo if needed
+nano ~/noobz-bot/.env
+```
+
+**Error: "Quota exceeded" / "Rate limit"**
+```bash
+# Check rate limits:
+# gemini-2.0-flash-exp: 1500 RPM (free)
+# gemini-1.5-flash: 1000 RPM (free)
+# gemini-1.5-pro: 360 RPM (free)
+
+# Solutions:
+# 1. Wait 1 minute for reset
+# 2. Switch to model dengan higher daily limit (1.5-pro)
+# 3. Upgrade to paid tier
+```
+
+**Error: "API key invalid"**
+```bash
+# Verify API key
+cat ~/noobz-bot/.env | grep GEMINI_API_KEY
+
+# Get new key from:
+# https://makersuite.google.com/app/apikey
+
+# Update .env
+nano ~/noobz-bot/.env
+
+# Restart bot
+sudo systemctl restart noobz-bot
+```
+
 ---
 
 ## 📱 Testing After Deployment
@@ -426,6 +524,16 @@ python main.py
 2. **Check logs:**
    ```bash
    sudo journalctl -u noobz-bot -n 50
+   ```
+   
+   **You should see:**
+   ```
+   Starting Noobz Announcement Bot
+   Initializing Gemini AI...
+   Using model: gemini-2.0-flash-exp
+   Gemini model 'gemini-2.0-flash-exp' initialized
+   Bot is running as: YourName (@yourusername)
+   Listening for commands in Saved Messages...
    ```
 
 3. **Test commands in Telegram Saved Messages:**
@@ -479,6 +587,8 @@ sudo systemctl restart noobz-bot
 4. **Monitor logs** - Check regularly untuk errors
 5. **Test before production** - Use screen untuk testing dulu
 6. **Keep updated** - `git pull` regularly untuk updates
+7. **Use Gemini 2.0 Flash** - Default model is fastest & best for this bot
+8. **Check model in logs** - Verify correct model is loaded on startup
 
 ---
 
@@ -508,14 +618,66 @@ python main.py  # Run directly untuk lihat errors
 - [ ] Virtual environment created
 - [ ] Dependencies installed
 - [ ] .env file configured dengan credentials
+- [ ] **Gemini model configured** (default: gemini-2.0-flash-exp)
 - [ ] First authentication done (session created)
 - [ ] Bot tested manually (python main.py)
+- [ ] **Model verified in logs** (check "Using model: ..." message)
 - [ ] Systemd service created & enabled
 - [ ] Bot running as service
 - [ ] Logs checked (no errors)
+- [ ] **Gemini model working** (test /announce command)
 - [ ] Commands tested in Telegram
 - [ ] Firewall configured (if needed)
 - [ ] Backup created (.env & session files)
+
+---
+
+## 🎯 Quick Reference Card
+
+### Essential Commands:
+```bash
+# Start/Stop/Restart
+sudo systemctl start noobz-bot
+sudo systemctl stop noobz-bot
+sudo systemctl restart noobz-bot
+
+# Check status & logs
+sudo systemctl status noobz-bot
+sudo journalctl -u noobz-bot -f
+
+# Update from GitHub
+cd ~/noobz-bot && git pull && sudo systemctl restart noobz-bot
+```
+
+### Model Configuration:
+```bash
+# Edit model
+nano ~/noobz-bot/.env
+# Change: GEMINI_MODEL=gemini-2.0-flash-exp
+
+# Available models:
+# gemini-2.0-flash-exp (1500 RPM, fastest) ⭐ DEFAULT
+# gemini-1.5-flash (1000 RPM, stable)
+# gemini-1.5-pro (360 RPM, best quality)
+```
+
+### Important Files:
+```
+~/noobz-bot/.env           - Your credentials ⚠️ BACKUP THIS!
+~/noobz-bot/*.session      - Telegram session ⚠️ BACKUP THIS!
+~/noobz-bot/bot.log        - Application logs
+/etc/systemd/system/noobz-bot.service - Service file
+```
+
+### API Keys:
+- **Telegram:** https://my.telegram.org/apps
+- **Gemini AI:** https://makersuite.google.com/app/apikey
+- **TMDB:** https://www.themoviedb.org/settings/api
+
+### Documentation:
+- **Setup Guide:** [SETUP.md](SETUP.md)
+- **Gemini Models:** [GEMINI_MODELS.md](GEMINI_MODELS.md)
+- **Main README:** [README.md](README.md)
 
 ---
 
