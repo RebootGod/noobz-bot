@@ -45,13 +45,17 @@ class MessageFormatter:
         runtime = movie_info.get('runtime') or movie_info.get('episode_run_time', [None])[0] if isinstance(movie_info.get('episode_run_time'), list) else movie_info.get('episode_run_time')
         tmdb_id = movie_info.get('id')
         
+        # Debug logging
+        logger.info(f"Formatting announcement for: {title}")
+        logger.info(f"Runtime value: {runtime}, Type: {type(runtime)}")
+        
         # Format genre (max 3)
         genre_names = [g['name'] for g in genres[:3]]
         genre_text = ', '.join(genre_names) if genre_names else 'N/A'
         
         # Format runtime
         runtime_text = ""
-        if runtime:
+        if runtime and runtime > 0:
             hours = runtime // 60
             minutes = runtime % 60
             if hours > 0:
@@ -64,6 +68,7 @@ class MessageFormatter:
         message += f"{generated_text}\n\n"
         message += f"⭐ Rating: {rating}/10\n"
         
+        # Always show duration or fallback
         if runtime_text:
             message += f"⏱️ Durasi: {runtime_text}\n"
         
