@@ -34,8 +34,9 @@ class MessageParser:
     """
     
     # Regex patterns
-    ANNOUNCE_PATTERN = r'^/announce\s+(.+?)\s+(.+)$'
-    INFOFILM_PATTERN = r'^/infofilm\s+@(\w+)\s+(movie|tv|series)\s+(.+?)(?:\s+(\d{4}))?$'
+    # Pattern untuk handle quoted strings: "Target Name" atau Target
+    ANNOUNCE_PATTERN = r'^/announce\s+(?:"([^"]+)"|(\S+))\s+(.+)$'
+    INFOFILM_PATTERN = r'^/infofilm\s+@(\w+)\s+\[(\d+)\]$'
     TMDB_ID_PATTERN = r'\[(\d+)\]'
     
     def __init__(self):
@@ -74,6 +75,7 @@ class MessageParser:
         Parse /announce command.
         
         Format: /announce <channel/group name> <prompt with [tmdbid]>
+        Support quoted target: /announce "Channel Name" prompt
         
         Args:
             message_text: Raw message text
@@ -92,8 +94,12 @@ class MessageParser:
                     error_message='Invalid format. Use: /announce <channel/group name> <prompt>'
                 )
             
-            target = match.group(1).strip()
-            prompt = match.group(2).strip()
+            # Group 1 = quoted target, Group 2 = unquoted target, Group 3 = prompt
+            target = match.group(1) if match.group(1) else match.group(2)
+            prompt = match.group(3).strip()
+            
+            # Remove quotes from target if present
+            target = target.strip().strip('"')
             
             # Extract TMDB ID jika ada
             tmdb_id = None
@@ -127,7 +133,7 @@ class MessageParser:
         """
         Parse /infofilm command.
         
-        Format: /infofilm @username <movie|tv|series> <keyword> [year]
+        Format: /infofilm @username [tmdb_id]
         
         Args:
             message_text: Raw message text
@@ -143,34 +149,16 @@ class MessageParser:
                     command='infofilm',
                     raw_text=message_text,
                     is_valid=False,
-                    error_message='Invalid format. Use: /infofilm @username <movie|tv> <keyword> [year]'
+                    error_message='Invalid format. Use: /infofilm @username [tmdb_id]'
                 )
             
             username = match.group(1).strip()
-            content_type = match.group(2).strip().lower()
-            keyword = match.group(3).strip()
-            year_str = match.group(4)
-            
-            # Normalize content type
-            if content_type in ['series', 'tv']:
-                content_type = 'tv'
-            else:
-                content_type = 'movie'
-            
-            # Parse year
-            year = None
-            if year_str:
-                try:
-                    year = int(year_str)
-                except ValueError:
-                    pass
+            tmdb_id = int(match.group(2).strip())
             
             return ParsedCommand(
                 command='infofilm',
                 target=username,
-                content_type=content_type,
-                keyword=keyword,
-                year=year,
+                tmdb_id=tmdb_id,
                 raw_text=message_text,
                 is_valid=True
             )

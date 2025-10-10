@@ -59,53 +59,25 @@ class InfoFilmHandler:
                     'message': f"User @{parsed_command.target} tidak ditemukan"
                 }
             
-            # Step 2: Search film/series
-            logger.info(
-                f"Searching {parsed_command.content_type}: {parsed_command.keyword} "
-                f"({parsed_command.year or 'any year'})"
-            )
+            # Step 2: Get movie info dari TMDB ID
+            logger.info(f"Fetching movie info for TMDB ID: {parsed_command.tmdb_id}")
+            movie_info = await self._get_movie_info(parsed_command.tmdb_id)
             
-            search_results = await self._search_content(
-                parsed_command.content_type,
-                parsed_command.keyword,
-                parsed_command.year
-            )
-            
-            if not search_results:
+            if not movie_info:
                 return {
                     'success': False,
-                    'message': f"Tidak ditemukan hasil untuk '{parsed_command.keyword}'"
+                    'message': f"Film dengan ID {parsed_command.tmdb_id} tidak ditemukan"
                 }
             
-            # Step 3: Get first result (best match)
-            best_match = search_results[0]
-            content_id = best_match['id']
+            # Step 3: Format info message
+            info_message = self.formatter.format_movie_info(movie_info)
             
-            # Get full details
-            logger.info(f"Fetching full details for ID: {content_id}")
-            content_info = await self._get_full_info(
-                content_id,
-                parsed_command.content_type
-            )
-            
-            if not content_info:
-                return {
-                    'success': False,
-                    'message': "Gagal mengambil detail film"
-                }
-            
-            # Step 4: Format info message
-            info_message = self.formatter.format_movie_info(
-                content_info,
-                parsed_command.content_type
-            )
-            
-            # Step 5: Send ke target user
-            title = content_info.get('title') or content_info.get('name', 'Unknown')
+            # Step 4: Send ke target user
+            title = movie_info.get('title') or movie_info.get('name', 'Unknown')
             logger.info(f"Sending info to @{parsed_command.target}...")
             
             # Send poster image if available
-            poster_path = content_info.get('poster_path')
+            poster_path = movie_info.get('poster_path')
             if poster_path:
                 poster_url = self.tmdb_service.get_poster_url(poster_path)
                 if poster_url:
@@ -168,54 +140,27 @@ class InfoFilmHandler:
             logger.error(f"Error finding user: {e}")
             return None
     
-    async def _search_content(
-        self, 
-        content_type: str, 
-        keyword: str, 
-        year: Optional[int]
-    ) -> list:
+    async def _get_movie_info(self, tmdb_id: int) -> Optional[Dict[str, Any]]:
         """
-        Search movie atau TV series.
+        Get movie info dari TMDB.
         
         Args:
-            content_type: 'movie' atau 'tv'
-            keyword: Search keyword
-            year: Year filter (optional)
+            tmdb_id: TMDB movie ID
             
         Returns:
-            List of search results
+            Movie info dictionary atau None
         """
         try:
-            if content_type == 'movie':
-                results = await self.tmdb_service.search_movie(keyword, year)
-            else:
-                results = await self.tmdb_service.search_tv(keyword, year)
-            
-            return results
+            # Try as movie first
+            try:
+                movie_info = await self.tmdb_service.get_movie_by_id(tmdb_id)
+                return movie_info
+            except:
+                # If failed, try as TV series
+                tv_info = await self.tmdb_service.get_tv_by_id(tmdb_id)
+                return tv_info
         except Exception as e:
-            logger.error(f"Error searching content: {e}")
-            return []
-    
-    async def _get_full_info(self, content_id: int, content_type: str) -> Optional[Dict[str, Any]]:
-        """
-        Get full details untuk movie/TV series.
-        
-        Args:
-            content_id: TMDB ID
-            content_type: 'movie' atau 'tv'
-            
-        Returns:
-            Full details dictionary atau None
-        """
-        try:
-            if content_type == 'movie':
-                info = await self.tmdb_service.get_movie_by_id(content_id)
-            else:
-                info = await self.tmdb_service.get_tv_by_id(content_id)
-            
-            return info
-        except Exception as e:
-            logger.error(f"Error getting full info: {e}")
+            logger.error(f"Error fetching movie info: {e}")
             return None
 
 
