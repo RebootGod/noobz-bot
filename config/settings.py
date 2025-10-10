@@ -31,10 +31,15 @@ class Settings:
         if self._initialized:
             return
             
-        # Telegram Configuration
+        # Telegram Configuration (Primary Account)
         self.telegram_api_id = self._get_env('TELEGRAM_API_ID', required=True, cast=int)
         self.telegram_api_hash = self._get_env('TELEGRAM_API_HASH', required=True)
         self.telegram_phone = self._get_env('TELEGRAM_PHONE', required=True)
+        
+        # Telegram Configuration (Secondary Account - Optional)
+        self.telegram_api_id_2 = self._get_env('TELEGRAM_API_ID_2', cast=int)
+        self.telegram_api_hash_2 = self._get_env('TELEGRAM_API_HASH_2')
+        self.telegram_phone_2 = self._get_env('TELEGRAM_PHONE_2')
         
         # Gemini AI Configuration
         self.gemini_api_key = self._get_env('GEMINI_API_KEY', required=True)
@@ -57,6 +62,7 @@ class Settings:
         
         # Session Configuration
         self.session_name = 'noobz_bot_session'
+        self.session_name_2 = 'noobz_bot_session_2'
         
         self._initialized = True
     
@@ -123,6 +129,15 @@ class Settings:
         if not self.telegram_phone.startswith('+'):
             raise ValueError("TELEGRAM_PHONE must start with country code (e.g., +62)")
         
+        # Validate secondary account if provided
+        if self.telegram_phone_2:
+            if not self.telegram_api_id_2 or not isinstance(self.telegram_api_id_2, int):
+                raise ValueError("TELEGRAM_API_ID_2 required when TELEGRAM_PHONE_2 is set")
+            if not self.telegram_api_hash_2:
+                raise ValueError("TELEGRAM_API_HASH_2 required when TELEGRAM_PHONE_2 is set")
+            if not self.telegram_phone_2.startswith('+'):
+                raise ValueError("TELEGRAM_PHONE_2 must start with country code (e.g., +62)")
+        
         # Validate API keys
         if not self.gemini_api_key or len(self.gemini_api_key) < 10:
             raise ValueError("GEMINI_API_KEY is invalid")
@@ -131,6 +146,19 @@ class Settings:
             raise ValueError("TMDB_API_KEY is invalid")
         
         return True
+    
+    def has_secondary_account(self) -> bool:
+        """
+        Check if secondary Telegram account is configured.
+        
+        Returns:
+            True if secondary account is configured
+        """
+        return bool(
+            self.telegram_phone_2 and 
+            self.telegram_api_id_2 and 
+            self.telegram_api_hash_2
+        )
     
     def get_telegram_config(self) -> dict:
         """
@@ -144,6 +172,23 @@ class Settings:
             'api_hash': self.telegram_api_hash,
             'phone': self.telegram_phone,
             'session_name': self.session_name
+        }
+    
+    def get_telegram_config_2(self) -> dict:
+        """
+        Get secondary Telegram configuration sebagai dictionary.
+        
+        Returns:
+            Dictionary berisi Telegram config untuk account kedua
+        """
+        if not self.has_secondary_account():
+            return None
+        
+        return {
+            'api_id': self.telegram_api_id_2,
+            'api_hash': self.telegram_api_hash_2,
+            'phone': self.telegram_phone_2,
+            'session_name': self.session_name_2
         }
     
     def __repr__(self) -> str:

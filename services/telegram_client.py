@@ -14,26 +14,24 @@ from config.settings import get_settings
 logger = logging.getLogger(__name__)
 
 
-class TelegramClientHandler:
+class TelegramHandler:
     """
     Handler untuk manage Telethon client.
-    Singleton pattern untuk ensure satu client instance.
+    Support multiple accounts dengan parameter use_secondary.
     """
     
-    _instance: Optional['TelegramClientHandler'] = None
-    _client: Optional[TelegramClient] = None
-    
-    def __new__(cls):
-        """Implement singleton pattern."""
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-    
-    def __init__(self):
-        """Initialize handler."""
+    def __init__(self, use_secondary: bool = False):
+        """
+        Initialize handler.
+        
+        Args:
+            use_secondary: If True, use secondary account configuration
+        """
         self.settings = get_settings()
+        self.use_secondary = use_secondary
         self._is_connected = False
         self._me: Optional[User] = None
+        self._client: Optional[TelegramClient] = None
     
     async def initialize(self) -> TelegramClient:
         """
@@ -50,8 +48,17 @@ class TelegramClientHandler:
             return self._client
         
         try:
+            # Get config for primary or secondary account
+            if self.use_secondary:
+                config = self.settings.get_telegram_config_2()
+                if not config:
+                    raise ValueError("Secondary account not configured in .env")
+                logger.info("Using secondary Telegram account")
+            else:
+                config = self.settings.get_telegram_config()
+                logger.info("Using primary Telegram account")
+            
             # Create client instance
-            config = self.settings.get_telegram_config()
             self._client = TelegramClient(
                 config['session_name'],
                 config['api_id'],
@@ -201,17 +208,17 @@ class TelegramClientHandler:
 
 
 # Global instance
-_telegram_handler: Optional[TelegramClientHandler] = None
+_telegram_handler: Optional[TelegramHandler] = None
 
 
-def get_telegram_handler() -> TelegramClientHandler:
+def get_telegram_handler() -> TelegramHandler:
     """
-    Get global TelegramClientHandler instance.
+    Get global TelegramHandler instance (primary account).
     
     Returns:
-        TelegramClientHandler instance
+        TelegramHandler instance
     """
     global _telegram_handler
     if _telegram_handler is None:
-        _telegram_handler = TelegramClientHandler()
+        _telegram_handler = TelegramHandler(use_secondary=False)
     return _telegram_handler
