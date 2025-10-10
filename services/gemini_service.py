@@ -87,8 +87,8 @@ class GeminiService:
             
             announcement = response.text.strip()
             
-            # Truncate to max 200 characters if needed
-            MAX_LENGTH = 200
+            # Truncate to max 300 characters if needed
+            MAX_LENGTH = 300
             if len(announcement) > MAX_LENGTH:
                 announcement = announcement[:MAX_LENGTH].rsplit(' ', 1)[0] + '...'
                 logger.info(f"Announcement truncated to {MAX_LENGTH} characters")
@@ -145,7 +145,7 @@ Requirements untuk announcement:
 - Buat catchy dan engaging untuk audience
 - Include emoji yang relevan untuk mood film
 - Mention bahwa film available di noobz.space
-- PENTING: Maksimal 200 karakter saja (sangat singkat!)
+- PENTING: Maksimal 300 karakter (singkat tapi informatif!)
 - Fokus pada hook yang bikin penasaran
 - Ajak audience untuk nonton
 

@@ -35,17 +35,41 @@ class MessageFormatter:
         Returns:
             Formatted announcement message
         """
-        message = generated_text
+        if not movie_info:
+            return generated_text
         
-        # Add link ke website jika ada movie info
-        if movie_info:
-            title = movie_info.get('title') or movie_info.get('name', '')
-            tmdb_id = movie_info.get('id')
-            
-            if tmdb_id:
-                # Buat link ke website (domain only)
-                message += f"\n\n🔗 Nonton di: {self.website_url}"
-                message += f"\n� Join channel: t.me/noobzspace"
+        # Extract movie info
+        title = movie_info.get('title') or movie_info.get('name', 'Unknown')
+        rating = movie_info.get('vote_average', 0)
+        genres = movie_info.get('genres', [])
+        runtime = movie_info.get('runtime') or movie_info.get('episode_run_time', [None])[0] if isinstance(movie_info.get('episode_run_time'), list) else movie_info.get('episode_run_time')
+        tmdb_id = movie_info.get('id')
+        
+        # Format genre (max 3)
+        genre_names = [g['name'] for g in genres[:3]]
+        genre_text = ', '.join(genre_names) if genre_names else 'N/A'
+        
+        # Format runtime
+        runtime_text = ""
+        if runtime:
+            hours = runtime // 60
+            minutes = runtime % 60
+            if hours > 0:
+                runtime_text = f"{hours}h {minutes}m"
+            else:
+                runtime_text = f"{minutes}m"
+        
+        # Build formatted message
+        message = f"🎬 **{title}**\n\n"
+        message += f"{generated_text}\n\n"
+        message += f"⭐ Rating: {rating}/10\n"
+        
+        if runtime_text:
+            message += f"⏱️ Durasi: {runtime_text}\n"
+        
+        message += f"🎭 Genre: {genre_text}\n\n"
+        message += f"🔗 Nonton di: {self.website_url}\n"
+        message += f"📢 Join channel: t.me/noobzspace"
         
         return message
     
