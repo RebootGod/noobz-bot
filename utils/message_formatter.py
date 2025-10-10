@@ -66,7 +66,13 @@ class MessageFormatter:
         
         # Format runtime
         runtime_text = ""
-        if runtime and runtime > 0:
+        # For series, calculate average episode duration if possible
+        if movie_info and movie_info.get('episode_run_time') and isinstance(movie_info['episode_run_time'], list):
+            episode_runtimes = [rt for rt in movie_info['episode_run_time'] if isinstance(rt, int) and rt > 0]
+            if episode_runtimes:
+                avg_runtime = round(sum(episode_runtimes) / len(episode_runtimes))
+                runtime_text = f"{avg_runtime}m (rata-rata per episode)"
+        elif runtime and runtime > 0:
             hours = runtime // 60
             minutes = runtime % 60
             if hours > 0:
