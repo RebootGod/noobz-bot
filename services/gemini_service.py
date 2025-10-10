@@ -33,9 +33,15 @@ class GeminiService:
             logger.error(f"Failed to configure Gemini API: {e}")
             raise
     
-    def initialize(self, model_name: str = 'gemini-pro'):
+    def initialize(self, model_name: str = 'gemini-2.0-flash-exp'):
         """
         Initialize Gemini model.
+        
+        Available models:
+        - gemini-2.0-flash-exp (Latest, fastest, recommended)
+        - gemini-1.5-flash (Fast, good for most tasks)
+        - gemini-1.5-pro (More capable, slower)
+        - gemini-pro (Legacy, stable)
         
         Args:
             model_name: Nama model yang akan digunakan

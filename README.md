@@ -4,10 +4,11 @@ Bot Telegram untuk mengirim announcement dan info film ke channel, group, atau p
 
 ## Features
 
-- 🤖 **AI-Powered Announcements**: Generate announcement menarik menggunakan Gemini AI
+- 🤖 **AI-Powered Announcements**: Generate announcement menarik menggunakan Gemini 2.0 Flash
 - 🎬 **Movie Info Sender**: Kirim info film dari TMDB ke user tertentu
 - 📢 **Multi-Destination**: Kirim ke channel, group, atau personal message
 - 💬 **Saved Messages Control**: Control bot dari Saved Messages (chat dengan diri sendiri)
+- ⚡ **Multiple AI Models**: Support Gemini 2.0 Flash, 1.5 Flash, dan 1.5 Pro
 
 ## Prerequisites
 
@@ -15,7 +16,10 @@ Bot Telegram untuk mengirim announcement dan info film ke channel, group, atau p
 2. **Telegram API Credentials**: 
    - Dapatkan dari https://my.telegram.org/apps
    - API ID dan API Hash
-3. **Gemini API Key**: Dapatkan dari https://makersuite.google.com/app/apikey
+3. **Gemini API Key**: 
+   - Dapatkan dari https://makersuite.google.com/app/apikey
+   - Support Gemini 2.0 Flash (default), 1.5 Flash, dan 1.5 Pro
+   - See [GEMINI_MODELS.md](GEMINI_MODELS.md) untuk comparison
 4. **TMDB API Key**: Dapatkan dari https://www.themoviedb.org/settings/api
 
 ## Installation

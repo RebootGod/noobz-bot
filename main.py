@@ -64,7 +64,8 @@ class NoobzBot:
             
             # Initialize Gemini AI
             logger.info("Initializing Gemini AI...")
-            self.gemini_service.initialize()
+            logger.info(f"Using model: {self.settings.gemini_model}")
+            self.gemini_service.initialize(model_name=self.settings.gemini_model)
             
             # Initialize handlers
             logger.info("Initializing command handlers...")

@@ -39,6 +39,12 @@ class Settings:
         # Gemini AI Configuration
         self.gemini_api_key = self._get_env('GEMINI_API_KEY', required=True)
         
+        # Gemini Model Configuration
+        self.gemini_model = self._get_env(
+            'GEMINI_MODEL', 
+            default='gemini-2.0-flash-exp'
+        )
+        
         # TMDB Configuration
         self.tmdb_api_key = self._get_env('TMDB_API_KEY', required=True)
         
