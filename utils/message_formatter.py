@@ -42,7 +42,18 @@ class MessageFormatter:
         title = movie_info.get('title') or movie_info.get('name', 'Unknown')
         rating = movie_info.get('vote_average', 0)
         genres = movie_info.get('genres', [])
-        runtime = movie_info.get('runtime') or movie_info.get('episode_run_time', [None])[0] if isinstance(movie_info.get('episode_run_time'), list) else movie_info.get('episode_run_time')
+        # Safely extract runtime for movies and series
+        runtime = None
+        if 'runtime' in movie_info and movie_info.get('runtime'):
+            runtime = movie_info.get('runtime')
+        elif 'episode_run_time' in movie_info:
+            episode_runtime = movie_info.get('episode_run_time')
+            if isinstance(episode_runtime, list) and len(episode_runtime) > 0:
+                runtime = episode_runtime[0]
+            elif isinstance(episode_runtime, int):
+                runtime = episode_runtime
+            else:
+                runtime = None
         tmdb_id = movie_info.get('id')
         
         # Debug logging
