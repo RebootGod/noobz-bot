@@ -6,11 +6,13 @@ Bot Telegram untuk mengirim announcement dan info film ke channel, group, atau p
 
 - 🤖 **AI-Powered Announcements**: Generate announcement menarik menggunakan Gemini 2.0 Flash
 - 🎬 **Movie Info Sender**: Kirim info film dari TMDB ke user tertentu
-- �️ **Movie Posters**: Auto-send poster film dengan announcement/info
-- �📢 **Multi-Destination**: Kirim ke channel, group, atau personal message
+- 🖼️ **Movie Posters**: Auto-send poster film dengan announcement/info
+- 📢 **Multi-Destination**: Kirim ke channel, group, atau personal message
 - 💬 **Saved Messages Control**: Control bot dari Saved Messages (chat dengan diri sendiri)
 - ⚡ **Multiple AI Models**: Support Gemini 2.0 Flash, 1.5 Flash, dan 1.5 Pro
 - 🔗 **Channel Promotion**: Auto-include channel link (t.me/noobzspace)
+- 🔄 **Multi-Account Support**: Automatic account switching when hitting flood limits
+- 🛡️ **Flood Protection**: Smart fallback system to bypass Telegram rate limits
 
 ## Prerequisites
 
@@ -45,7 +47,33 @@ cp .env.example .env
 # Edit .env dan isi dengan credentials kamu
 ```
 
-4. Run bot:
+**Environment Variables:**
+```bash
+# Primary Account (Required)
+TELEGRAM_API_ID=your_api_id
+TELEGRAM_API_HASH=your_api_hash
+TELEGRAM_PHONE=+62xxxxxxxxxxxxx  # Format: +[country_code][number]
+
+# Secondary Account (Optional - for flood protection)
+TELEGRAM_API_ID_2=your_api_id_2
+TELEGRAM_API_HASH_2=your_api_hash_2
+TELEGRAM_PHONE_2=+62xxxxxxxxxxxxx  # Different phone number
+
+# AI & Movie Database
+GEMINI_API_KEY=your_gemini_key
+TMDB_API_KEY=your_tmdb_key
+```
+
+4. Setup Telegram accounts:
+```bash
+# Setup primary account (required)
+python setup_account_1.py
+
+# Setup secondary account (optional - for multi-account)
+python setup_account_2.py
+```
+
+5. Run bot:
 ```bash
 python main.py
 ```
@@ -99,24 +127,58 @@ Bot akan:
 ```
 noobz-bot/
 ├── config/
-│   └── settings.py          # Environment configuration
+│   └── settings.py              # Environment configuration
 ├── services/
-│   ├── telegram_client.py   # Telethon client handler
-│   ├── gemini_service.py    # Gemini AI integration
-│   └── tmdb_service.py      # TMDB API integration
+│   ├── telegram_client.py       # Telethon client handler
+│   ├── multi_account_manager.py # Multi-account management with flood detection
+│   ├── gemini_service.py        # Gemini AI integration
+│   └── tmdb_service.py          # TMDB API integration
 ├── handlers/
-│   ├── announce_handler.py  # /announce command handler
-│   └── infofilm_handler.py  # /infofilm command handler
+│   ├── announce_handler.py      # /announce command handler
+│   ├── infofilm_handler.py      # /infofilm command handler
+│   └── help_handler.py          # /help command handler
 ├── utils/
-│   ├── message_parser.py    # Command parser
-│   ├── chat_finder.py       # Find channel/group by name
-│   └── message_formatter.py # Message formatting
-├── main.py                  # Bot entry point
+│   ├── message_parser.py        # Command parser
+│   ├── chat_finder.py           # Find channel/group by name
+│   └── message_formatter.py     # Message formatting
+├── setup_account_1.py           # Setup script for primary account
+├── setup_account_2.py           # Setup script for secondary account
+├── main.py                      # Bot entry point
 ├── requirements.txt
 ├── .env.example
 ├── .gitignore
 └── README.md
 ```
+
+## Multi-Account System
+
+Bot mendukung **2 akun Telegram** untuk bypass flood limits:
+
+### How It Works
+1. **Primary Account**: Akun utama yang digunakan untuk send messages
+2. **Secondary Account**: Akun backup yang otomatis dipakai jika primary kena flood limit
+3. **Auto-Switching**: Bot otomatis switch ke account lain jika detect `FloodWaitError`
+4. **Cooldown Tracking**: Track account mana yang sedang limited dan kapan available lagi
+
+### Setup Multi-Account
+1. Buat 2 API credentials berbeda di https://my.telegram.org/apps (satu untuk tiap akun)
+2. Tambahkan credentials account kedua di `.env`:
+   ```bash
+   TELEGRAM_API_ID_2=your_second_api_id
+   TELEGRAM_API_HASH_2=your_second_api_hash
+   TELEGRAM_PHONE_2=+62xxxxxxxxxxxxx
+   ```
+3. Jalankan setup untuk account kedua:
+   ```bash
+   python setup_account_2.py
+   ```
+4. Restart bot - multi-account akan otomatis aktif!
+
+### Benefits
+- ✅ **No downtime** saat kena flood limit
+- ✅ **Automatic failover** ke backup account
+- ✅ **Smart cooldown tracking** untuk optimal account usage
+- ✅ **Transparent switching** - user tidak perlu tahu pakai account mana
 
 ## Notes
 

@@ -8,6 +8,7 @@ from typing import Optional
 
 from services.tmdb_service import get_tmdb_service
 from services.gemini_service import get_gemini_service
+from services.multi_account_manager import get_multi_account_manager
 from utils.message_parser import ParsedCommand
 from utils.chat_finder import ChatFinder
 from utils.message_formatter import get_message_formatter
@@ -30,6 +31,7 @@ class AnnounceHandler:
         self.client = telegram_client
         self.tmdb_service = get_tmdb_service()
         self.gemini_service = get_gemini_service()
+        self.multi_account_manager = get_multi_account_manager()
         self.chat_finder = ChatFinder(telegram_client)
         self.formatter = get_message_formatter()
     
@@ -100,59 +102,52 @@ class AnnounceHandler:
             # Step 5: Send ke target
             logger.info(f"Sending announcement to {parsed_command.target}...")
             
+            # Use multi-account manager if available, otherwise use direct client
+            use_multi_account = (
+                self.multi_account_manager._initialized and 
+                len(self.multi_account_manager.accounts) > 0
+            )
+            
             # Send poster image if available
             poster_path = movie_info.get('poster_path')
+            poster_url = None
             if poster_path:
                 poster_url = self.tmdb_service.get_poster_url(poster_path)
-                if poster_url:
-                    try:
+            
+            # Send with multi-account fallback
+            if use_multi_account:
+                result = await self.multi_account_manager.send_with_fallback(
+                    target_entity,
+                    message=formatted_message,
+                    file=poster_url,
+                    parse_mode='markdown'
+                )
+                
+                if not result['success']:
+                    logger.error(f"Failed to send with multi-account: {result.get('message')}")
+                    return {
+                        'success': False,
+                        'message': f"Gagal mengirim announcement: {result.get('message')}"
+                    }
+                
+                logger.info(f"Successfully sent announcement via {result.get('account_id', 'unknown')}")
+            else:
+                # Fallback to direct send (single account mode)
+                try:
+                    if poster_url:
                         await self.client.send_file(
                             target_entity,
                             poster_url,
                             caption=formatted_message,
                             parse_mode='markdown'
                         )
-                        logger.info("Successfully sent announcement with poster")
-                    except Exception as e:
-                        logger.error(f"Failed to send with poster: {e}")
-                        # Try send text only as fallback
-                        try:
-                            await self.client.send_message(
-                                target_entity,
-                                formatted_message,
-                                parse_mode='markdown'
-                            )
-                            logger.info("Successfully sent announcement (text only)")
-                        except Exception as e2:
-                            logger.error(f"Failed to send text message: {e2}")
-                            return {
-                                'success': False,
-                                'message': f"Gagal mengirim announcement: {str(e2)}"
-                            }
-                else:
-                    # No poster URL, send text only
-                    try:
+                    else:
                         await self.client.send_message(
                             target_entity,
                             formatted_message,
                             parse_mode='markdown'
                         )
-                        logger.info("Successfully sent announcement (no poster)")
-                    except Exception as e:
-                        logger.error(f"Failed to send message: {e}")
-                        return {
-                            'success': False,
-                            'message': f"Gagal mengirim announcement: {str(e)}"
-                        }
-            else:
-                # No poster path, send text only
-                try:
-                    await self.client.send_message(
-                        target_entity,
-                        formatted_message,
-                        parse_mode='markdown'
-                    )
-                    logger.info("Successfully sent announcement (no poster)")
+                    logger.info("Successfully sent announcement (single account mode)")
                 except Exception as e:
                     logger.error(f"Failed to send message: {e}")
                     return {

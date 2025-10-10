@@ -83,10 +83,15 @@ nano .env
 
 **Isi credentials di `.env`:**
 ```env
-# Telegram Configuration
+# Primary Telegram Account (Required)
 TELEGRAM_API_ID=your_api_id_here
 TELEGRAM_API_HASH=your_api_hash_here
 TELEGRAM_PHONE=+62xxxxxxxxxxxxx
+
+# Secondary Telegram Account (Optional - for flood protection)
+TELEGRAM_API_ID_2=your_second_api_id
+TELEGRAM_API_HASH_2=your_second_api_hash
+TELEGRAM_PHONE_2=+62xxxxxxxxxxxxx  # Different phone number
 
 # Gemini AI Configuration
 GEMINI_API_KEY=your_gemini_api_key_here
@@ -111,7 +116,44 @@ DEBUG=False
 - Nano: `Ctrl+X`, tekan `Y`, tekan `Enter`
 - Vim: tekan `Esc`, ketik `:wq`, tekan `Enter`
 
-### 7. First Run & Authentication
+### 7. Setup Telegram Accounts
+
+```bash
+# Activate venv jika belum
+source venv/bin/activate
+
+# Setup primary account (REQUIRED)
+python setup_account_1.py
+```
+
+**Primary Account Setup:**
+1. Bot akan show nomor telepon dari `.env`
+2. Konfirmasi dengan ketik `y`
+3. Check Telegram app - akan dapat kode login
+4. Paste kode ke terminal
+5. Jika ada 2FA, masukkan password
+6. Session file `noobz_bot_session.session` akan dibuat
+
+**Multi-Account Setup (OPTIONAL - for flood protection):**
+```bash
+# Setup secondary account
+python setup_account_2.py
+```
+
+**Secondary Account Setup:**
+1. Bot akan show nomor telepon kedua dari `.env`
+2. Konfirmasi dengan ketik `y`
+3. Check Telegram app - akan dapat kode login (ke phone kedua)
+4. Paste kode ke terminal
+5. Session file `noobz_bot_session_2.session` akan dibuat
+
+**Multi-Account Benefits:**
+- ✅ Auto-switch ke account backup jika kena flood limit
+- ✅ No downtime saat rate limited
+- ✅ Smart cooldown tracking
+- ✅ Transparent failover
+
+### 8. Run Bot
 
 ```bash
 # Activate venv jika belum
@@ -121,21 +163,17 @@ source venv/bin/activate
 python main.py
 ```
 
-**First time setup:**
-1. Bot akan minta verification code
-2. Check Telegram app di phone kamu
-3. Copy code dan paste ke terminal
-4. Jika ada 2FA, masukkan password
-5. Session file akan dibuat otomatis
-6. **Bot akan show:**
-   ```
-   Starting Noobz Announcement Bot
-   Initializing Gemini AI...
-   Using model: gemini-2.0-flash-exp
-   Bot is running as: YourName (@yourusername)
-   Listening for commands in Saved Messages...
-   ```
-7. Bot sekarang running!
+**Bot startup akan show:**
+```
+Starting Noobz Announcement Bot
+Initializing Gemini AI...
+Using model: gemini-2.0-flash-exp
+✅ Primary account initialized: +62xxx (YourName)
+✅ Secondary account initialized: +62yyy (BackupName)  # Jika setup multi-account
+Multi-Account Manager initialized with 2 account(s)
+Bot is running...
+Listening for commands in Saved Messages...
+```
 
 **Test:** Kirim command di Saved Messages Telegram kamu
 

@@ -7,6 +7,7 @@ import logging
 from typing import Optional, Dict, Any
 
 from services.tmdb_service import get_tmdb_service
+from services.multi_account_manager import get_multi_account_manager
 from utils.message_parser import ParsedCommand
 from utils.chat_finder import ChatFinder
 from utils.message_formatter import get_message_formatter
@@ -28,6 +29,7 @@ class InfoFilmHandler:
         """
         self.client = telegram_client
         self.tmdb_service = get_tmdb_service()
+        self.multi_account_manager = get_multi_account_manager()
         self.chat_finder = ChatFinder(telegram_client)
         self.formatter = get_message_formatter()
     
@@ -76,39 +78,58 @@ class InfoFilmHandler:
             title = movie_info.get('title') or movie_info.get('name', 'Unknown')
             logger.info(f"Sending info to @{parsed_command.target}...")
             
+            # Use multi-account manager if available, otherwise use direct client
+            use_multi_account = (
+                self.multi_account_manager._initialized and 
+                len(self.multi_account_manager.accounts) > 0
+            )
+            
             # Send poster image if available
             poster_path = movie_info.get('poster_path')
+            poster_url = None
             if poster_path:
                 poster_url = self.tmdb_service.get_poster_url(poster_path)
-                if poster_url:
-                    try:
+            
+            # Send with multi-account fallback
+            if use_multi_account:
+                result = await self.multi_account_manager.send_with_fallback(
+                    target_user,
+                    message=info_message,
+                    file=poster_url,
+                    parse_mode='markdown'
+                )
+                
+                if not result['success']:
+                    logger.error(f"Failed to send with multi-account: {result.get('message')}")
+                    return {
+                        'success': False,
+                        'message': f"Gagal mengirim info: {result.get('message')}"
+                    }
+                
+                logger.info(f"Successfully sent info via {result.get('account_id', 'unknown')}")
+            else:
+                # Fallback to direct send (single account mode)
+                try:
+                    if poster_url:
                         await self.client.send_file(
                             target_user,
                             poster_url,
                             caption=info_message,
                             parse_mode='markdown'
                         )
-                    except Exception as e:
-                        logger.warning(f"Failed to send poster, sending text only: {e}")
+                    else:
                         await self.client.send_message(
                             target_user,
                             info_message,
                             parse_mode='markdown'
                         )
-                else:
-                    # No poster URL, send text only
-                    await self.client.send_message(
-                        target_user,
-                        info_message,
-                        parse_mode='markdown'
-                    )
-            else:
-                # No poster, send text only
-                await self.client.send_message(
-                    target_user,
-                    info_message,
-                    parse_mode='markdown'
-                )
+                    logger.info("Successfully sent info (single account mode)")
+                except Exception as e:
+                    logger.error(f"Failed to send message: {e}")
+                    return {
+                        'success': False,
+                        'message': f"Gagal mengirim info: {str(e)}"
+                    }
             
             return {
                 'success': True,
