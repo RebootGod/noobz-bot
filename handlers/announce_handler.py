@@ -62,23 +62,34 @@ class AnnounceHandler:
                 }
             
             # Step 2: Get movie info jika ada TMDB ID
-            movie_info = None
-            if parsed_command.tmdb_id:
-                logger.info(f"Fetching movie info for TMDB ID: {parsed_command.tmdb_id}")
-                movie_info = await self._get_movie_info(parsed_command.tmdb_id)
-                
-                if not movie_info:
-                    return {
-                        'success': False,
-                        'message': f"Film dengan ID {parsed_command.tmdb_id} tidak ditemukan"
-                    }
+            if not parsed_command.tmdb_id:
+                return {
+                    'success': False,
+                    'message': 'TMDB ID required! Format: /announce <target> <context> [TMDB_ID]'
+                }
+            
+            logger.info(f"Fetching movie info for TMDB ID: {parsed_command.tmdb_id}")
+            movie_info = await self._get_movie_info(parsed_command.tmdb_id)
+            
+            if not movie_info:
+                return {
+                    'success': False,
+                    'message': f"Film dengan ID {parsed_command.tmdb_id} tidak ditemukan"
+                }
             
             # Step 3: Generate announcement dengan AI
             logger.info("Generating announcement with Gemini AI...")
-            announcement = await self._generate_announcement(
-                movie_info, 
-                parsed_command.custom_prompt
-            )
+            try:
+                announcement = await self._generate_announcement(
+                    movie_info, 
+                    parsed_command.custom_prompt
+                )
+            except Exception as e:
+                logger.error(f"Failed to generate announcement: {e}")
+                return {
+                    'success': False,
+                    'message': f"Gagal generate announcement: {str(e)}"
+                }
             
             # Step 4: Format announcement
             formatted_message = self.formatter.format_announcement(
@@ -90,8 +101,9 @@ class AnnounceHandler:
             logger.info(f"Sending announcement to {parsed_command.target}...")
             
             # Send poster image if available
-            if movie_info and movie_info.get('poster_path'):
-                poster_url = self.tmdb_service.get_poster_url(movie_info['poster_path'])
+            poster_path = movie_info.get('poster_path')
+            if poster_path:
+                poster_url = self.tmdb_service.get_poster_url(poster_path)
                 if poster_url:
                     try:
                         await self.client.send_file(
@@ -100,27 +112,53 @@ class AnnounceHandler:
                             caption=formatted_message,
                             parse_mode='markdown'
                         )
+                        logger.info("Successfully sent announcement with poster")
                     except Exception as e:
-                        logger.warning(f"Failed to send poster, sending text only: {e}")
+                        logger.error(f"Failed to send with poster: {e}")
+                        # Try send text only as fallback
+                        try:
+                            await self.client.send_message(
+                                target_entity,
+                                formatted_message,
+                                parse_mode='markdown'
+                            )
+                            logger.info("Successfully sent announcement (text only)")
+                        except Exception as e2:
+                            logger.error(f"Failed to send text message: {e2}")
+                            return {
+                                'success': False,
+                                'message': f"Gagal mengirim announcement: {str(e2)}"
+                            }
+                else:
+                    # No poster URL, send text only
+                    try:
                         await self.client.send_message(
                             target_entity,
                             formatted_message,
                             parse_mode='markdown'
                         )
-                else:
-                    # No poster, send text only
+                        logger.info("Successfully sent announcement (no poster)")
+                    except Exception as e:
+                        logger.error(f"Failed to send message: {e}")
+                        return {
+                            'success': False,
+                            'message': f"Gagal mengirim announcement: {str(e)}"
+                        }
+            else:
+                # No poster path, send text only
+                try:
                     await self.client.send_message(
                         target_entity,
                         formatted_message,
                         parse_mode='markdown'
                     )
-            else:
-                # No movie info or poster, send text only
-                await self.client.send_message(
-                    target_entity,
-                    formatted_message,
-                    parse_mode='markdown'
-                )
+                    logger.info("Successfully sent announcement (no poster)")
+                except Exception as e:
+                    logger.error(f"Failed to send message: {e}")
+                    return {
+                        'success': False,
+                        'message': f"Gagal mengirim announcement: {str(e)}"
+                    }
             
             return {
                 'success': True,
