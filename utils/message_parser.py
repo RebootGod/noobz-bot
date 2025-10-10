@@ -8,6 +8,13 @@ import logging
 from typing import Optional, Dict, Any, List
 from dataclasses import dataclass
 
+from utils.command_parse_helpers import (
+    extract_media_type,
+    extract_custom_synopsis,
+    extract_title_year,
+    validate_media_type_requirement
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -41,10 +48,8 @@ class MessageParser:
     # Pattern untuk handle target (quoted atau unquoted), lalu prompt
     # Format: /announce Target Context [optional: movies/series, judul tahun, sinopsis]
     ANNOUNCE_PATTERN = r'^/announce\s+(?:"([^"]+)"|(\S+))\s+(.+)$'
-    INFOFILM_PATTERN = r'^/infofilm\s+@(\w+)\s+\[(\d+)\]$'
-    MEDIA_TYPE_PATTERN = r'\[(movies|series)\]'  # Match [movies] atau [series] (optional)
-    TITLE_YEAR_PATTERN = r'\[([^\[\]]+\s+\d{4})\]'  # Match [Judul Tahun] e.g. [Fight Club 1999]
-    SYNOPSIS_PATTERN = r'\[sinopsis\]\s*(.+?)(?=\[|$)'  # Match [sinopsis] content until next [ or end
+    # Format: /infofilm @username Context [optional: movies/series, judul tahun, sinopsis]
+    INFOFILM_PATTERN = r'^/infofilm\s+@(\w+)\s+(.+)$'
     
     def __init__(self):
         """Initialize parser."""
@@ -110,39 +115,19 @@ class MessageParser:
             # Remove quotes from target if present
             target = target.strip().strip('"')
             
-            # Extract media type (OPTIONAL)
-            media_type = None
-            media_match = re.search(self.MEDIA_TYPE_PATTERN, prompt, re.IGNORECASE)
-            if media_match:
-                media_type = media_match.group(1).lower()
-                # Remove [movies/series] dari prompt
-                prompt = re.sub(self.MEDIA_TYPE_PATTERN, '', prompt, flags=re.IGNORECASE).strip()
+            # Extract tags using helpers
+            media_type, prompt = extract_media_type(prompt)
+            custom_synopsis, prompt = extract_custom_synopsis(prompt)
+            title_year, custom_prompt = extract_title_year(prompt)
             
-            # Extract custom synopsis jika ada [sinopsis]
-            custom_synopsis = None
-            synopsis_match = re.search(self.SYNOPSIS_PATTERN, prompt, re.IGNORECASE | re.DOTALL)
-            if synopsis_match:
-                custom_synopsis = synopsis_match.group(1).strip()
-                # Remove [sinopsis]...content dari prompt
-                prompt = re.sub(self.SYNOPSIS_PATTERN, '', prompt, flags=re.IGNORECASE | re.DOTALL).strip()
-            
-            # Extract title+year jika ada [judul tahun]
-            title_year = None
-            title_match = re.search(self.TITLE_YEAR_PATTERN, prompt)
-            if title_match:
-                title_year = title_match.group(1).strip()
-                # Remove [judul tahun] dari prompt untuk custom prompt
-                custom_prompt = re.sub(self.TITLE_YEAR_PATTERN, '', prompt).strip()
-            else:
-                custom_prompt = prompt
-            
-            # Validation: Jika ada title_year, media_type HARUS ada
-            if title_year and not media_type:
+            # Validation
+            error_msg = validate_media_type_requirement(title_year, media_type)
+            if error_msg:
                 return ParsedCommand(
                     command='announce',
                     raw_text=message_text,
                     is_valid=False,
-                    error_message='Media type required when using [judul tahun]! Use [movies] or [series]'
+                    error_message=error_msg
                 )
             
             return ParsedCommand(
@@ -169,7 +154,10 @@ class MessageParser:
         """
         Parse /infofilm command.
         
-        Format: /infofilm @username [tmdb_id]
+        Format:
+        - /infofilm @username <context>
+        - /infofilm @username [movies/series] <context> [judul tahun]
+        - /infofilm @username [movies/series] <context> [sinopsis] <text> [judul tahun]
         
         Args:
             message_text: Raw message text
@@ -178,23 +166,42 @@ class MessageParser:
             ParsedCommand object
         """
         try:
-            match = re.match(self.INFOFILM_PATTERN, message_text, re.IGNORECASE)
+            match = re.match(self.INFOFILM_PATTERN, message_text, re.IGNORECASE | re.DOTALL)
             
             if not match:
                 return ParsedCommand(
                     command='infofilm',
                     raw_text=message_text,
                     is_valid=False,
-                    error_message='Invalid format. Use: /infofilm @username [tmdb_id]'
+                    error_message='Invalid format. Use: /infofilm @username <context> or /infofilm @username [movies/series] <context> [judul tahun]'
                 )
             
+            # Group 1 = username, Group 2 = prompt
             username = match.group(1).strip()
-            tmdb_id = int(match.group(2).strip())
+            prompt = match.group(2).strip()
+            
+            # Extract tags using helpers
+            media_type, prompt = extract_media_type(prompt)
+            custom_synopsis, prompt = extract_custom_synopsis(prompt)
+            title_year, custom_prompt = extract_title_year(prompt)
+            
+            # Validation
+            error_msg = validate_media_type_requirement(title_year, media_type)
+            if error_msg:
+                return ParsedCommand(
+                    command='infofilm',
+                    raw_text=message_text,
+                    is_valid=False,
+                    error_message=error_msg
+                )
             
             return ParsedCommand(
                 command='infofilm',
                 target=username,
-                tmdb_id=tmdb_id,
+                media_type=media_type,
+                title_year=title_year,
+                custom_prompt=custom_prompt,
+                custom_synopsis=custom_synopsis,
                 raw_text=message_text,
                 is_valid=True
             )

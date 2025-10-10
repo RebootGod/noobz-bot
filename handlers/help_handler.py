@@ -84,22 +84,29 @@ Parameter:
 ---
 
 🎬 **InfoFilm Command**
-Kirim info film ke user tertentu via personal message.
+Kirim info film/series ke user tertentu via personal message.
 
 Format:
 ```
-/infofilm [Username] [ID Film]
+/infofilm @username [Context]
+/infofilm @username [movies/series] [Context] [Judul Tahun]
+/infofilm @username [movies/series] [Context] [sinopsis] (Custom synopsis) [Judul Tahun]
 ```
 
 Contoh:
 ```
-/infofilm @johndoe [550988]
-/infofilm @username [603]
+/infofilm @johndoe Ada rekomendasi nih
+/infofilm @username [movies] Film action keren [Inception 2010]
+/infofilm @johndoe [series] Series bagus [Breaking Bad 2008]
+/infofilm @username [movies] [sinopsis] Film tentang mimpi berlapis [Inception 2010]
 ```
 
 Parameter:
-• **Username**: Username Telegram target (harus pakai @)
-• **ID Film**: ID film dari TMDB dalam [kurung siku]
+• **@username**: Username Telegram target (harus pakai @)
+• **Context**: Konteks/pesan yang ingin dikirim
+• **[movies/series]**: Opsional - pilih tipe konten (wajib jika pakai [Judul Tahun])
+• **[Judul Tahun]**: Opsional - judul + tahun rilis (contoh: [Fight Club 1999])
+• **[sinopsis]**: Opsional - custom synopsis untuk AI generation
 """
         return help_text.strip()
 

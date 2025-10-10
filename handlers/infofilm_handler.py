@@ -11,6 +11,7 @@ from services.multi_account_manager import get_multi_account_manager
 from utils.message_parser import ParsedCommand
 from utils.chat_finder import ChatFinder
 from utils.message_formatter import get_message_formatter
+from handlers.announce_content_search import search_content
 
 logger = logging.getLogger(__name__)
 
@@ -61,21 +62,35 @@ class InfoFilmHandler:
                     'message': f"User @{parsed_command.target} tidak ditemukan"
                 }
             
-            # Step 2: Get movie info dari TMDB ID
-            logger.info(f"Fetching movie info for TMDB ID: {parsed_command.tmdb_id}")
-            movie_info = await self._get_movie_info(parsed_command.tmdb_id)
-            
-            if not movie_info:
-                return {
-                    'success': False,
-                    'message': f"Film dengan ID {parsed_command.tmdb_id} tidak ditemukan"
-                }
+            # Step 2: Get movie/series info jika ada media_type + title_year (OPTIONAL)
+            movie_info = None
+            if parsed_command.media_type and parsed_command.title_year:
+                logger.info(f"Searching {parsed_command.media_type} with title: {parsed_command.title_year}")
+                movie_info = await search_content(
+                    self.tmdb_service,
+                    parsed_command.media_type, 
+                    parsed_command.title_year
+                )
+                
+                if not movie_info:
+                    return {
+                        'success': False,
+                        'message': f"{parsed_command.media_type.capitalize()} '{parsed_command.title_year}' tidak ditemukan"
+                    }
+            else:
+                # Context-only mode: tidak ada movie info
+                logger.info("No media type/title provided, sending context-only message")
             
             # Step 3: Format info message
-            info_message = self.formatter.format_movie_info(movie_info)
+            if movie_info:
+                info_message = self.formatter.format_movie_info(movie_info)
+                title = movie_info.get('title') or movie_info.get('name', 'Unknown')
+            else:
+                # Context-only message
+                info_message = parsed_command.custom_prompt
+                title = "Info"
             
             # Step 4: Send ke target user
-            title = movie_info.get('title') or movie_info.get('name', 'Unknown')
             logger.info(f"Sending info to @{parsed_command.target}...")
             
             # Use multi-account manager if available, otherwise use direct client
@@ -84,8 +99,8 @@ class InfoFilmHandler:
                 len(self.multi_account_manager.accounts) > 0
             )
             
-            # Send poster image if available
-            poster_path = movie_info.get('poster_path')
+            # Send poster image if available (only if movie_info exists)
+            poster_path = movie_info.get('poster_path') if movie_info else None
             poster_url = None
             if poster_path:
                 poster_url = self.tmdb_service.get_poster_url(poster_path)
@@ -159,29 +174,6 @@ class InfoFilmHandler:
             return user
         except Exception as e:
             logger.error(f"Error finding user: {e}")
-            return None
-    
-    async def _get_movie_info(self, tmdb_id: int) -> Optional[Dict[str, Any]]:
-        """
-        Get movie info dari TMDB.
-        
-        Args:
-            tmdb_id: TMDB movie ID
-            
-        Returns:
-            Movie info dictionary atau None
-        """
-        try:
-            # Try as movie first
-            try:
-                movie_info = await self.tmdb_service.get_movie_by_id(tmdb_id)
-                return movie_info
-            except:
-                # If failed, try as TV series
-                tv_info = await self.tmdb_service.get_tv_by_id(tmdb_id)
-                return tv_info
-        except Exception as e:
-            logger.error(f"Error fetching movie info: {e}")
             return None
 
 
