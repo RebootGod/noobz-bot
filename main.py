@@ -28,6 +28,10 @@ logging.basicConfig(
     ]
 )
 
+# Reduce Telethon verbosity (optional - hides internal sync logs)
+logging.getLogger('telethon.client.updates').setLevel(logging.WARNING)
+logging.getLogger('telethon.network.mtprotosender').setLevel(logging.WARNING)
+
 logger = logging.getLogger(__name__)
 
 
