@@ -86,6 +86,15 @@ class TelegramClientHandler:
         """
         try:
             phone = self.settings.telegram_phone
+            
+            # Validate phone format
+            if not phone.startswith('+'):
+                raise ValueError(
+                    f"Invalid phone format: '{phone}'. "
+                    f"Phone must start with + and country code. "
+                    f"Example: +62812345678900 (for Indonesia)"
+                )
+            
             await self._client.send_code_request(phone)
             
             # Prompt untuk code
