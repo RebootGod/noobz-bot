@@ -86,6 +86,13 @@ class GeminiService:
                 raise Exception("Empty response from Gemini")
             
             announcement = response.text.strip()
+            
+            # Truncate to max 200 characters if needed
+            MAX_LENGTH = 200
+            if len(announcement) > MAX_LENGTH:
+                announcement = announcement[:MAX_LENGTH].rsplit(' ', 1)[0] + '...'
+                logger.info(f"Announcement truncated to {MAX_LENGTH} characters")
+            
             logger.info("Successfully generated announcement")
             return announcement
             
@@ -138,8 +145,8 @@ Requirements untuk announcement:
 - Buat catchy dan engaging untuk audience
 - Include emoji yang relevan untuk mood film
 - Mention bahwa film available di noobz.space
-- Jangan terlalu panjang (maksimal 200 kata)
-- Fokus pada aspek menarik dari film
+- PENTING: Maksimal 200 karakter saja (sangat singkat!)
+- Fokus pada hook yang bikin penasaran
 - Ajak audience untuk nonton
 
 Format output: langsung announcement text saja, tanpa judul atau label tambahan.
