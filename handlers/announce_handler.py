@@ -63,28 +63,27 @@ class AnnounceHandler:
                     'message': f"Channel/group '{parsed_command.target}' tidak ditemukan"
                 }
             
-            # Step 2: Get movie info jika ada TMDB ID
-            if not parsed_command.tmdb_id:
-                return {
-                    'success': False,
-                    'message': 'TMDB ID required! Format: /announce <target> <context> [TMDB_ID]'
-                }
-            
-            logger.info(f"Fetching movie info for TMDB ID: {parsed_command.tmdb_id}")
-            movie_info = await self._get_movie_info(parsed_command.tmdb_id)
-            
-            if not movie_info:
-                return {
-                    'success': False,
-                    'message': f"Film dengan ID {parsed_command.tmdb_id} tidak ditemukan"
-                }
+            # Step 2: Get movie info jika ada TMDB ID (OPTIONAL)
+            movie_info = None
+            if parsed_command.tmdb_id:
+                logger.info(f"Fetching movie info for TMDB ID: {parsed_command.tmdb_id}")
+                movie_info = await self._get_movie_info(parsed_command.tmdb_id)
+                
+                if not movie_info:
+                    return {
+                        'success': False,
+                        'message': f"Film dengan ID {parsed_command.tmdb_id} tidak ditemukan"
+                    }
+            else:
+                logger.info("No TMDB ID provided, generating announcement from context only")
             
             # Step 3: Generate announcement dengan AI
             logger.info("Generating announcement with Gemini AI...")
             try:
                 announcement = await self._generate_announcement(
                     movie_info, 
-                    parsed_command.custom_prompt
+                    parsed_command.custom_prompt,
+                    parsed_command.custom_synopsis
                 )
             except Exception as e:
                 logger.error(f"Failed to generate announcement: {e}")
@@ -96,7 +95,7 @@ class AnnounceHandler:
             # Step 4: Format announcement
             formatted_message = self.formatter.format_announcement(
                 announcement, 
-                movie_info
+                movie_info  # Can be None if no TMDB ID
             )
             
             # Step 5: Send ke target
@@ -108,8 +107,8 @@ class AnnounceHandler:
                 len(self.multi_account_manager.accounts) > 0
             )
             
-            # Send poster image if available
-            poster_path = movie_info.get('poster_path')
+            # Send poster image if available (only if movie_info exists)
+            poster_path = movie_info.get('poster_path') if movie_info else None
             poster_url = None
             if poster_path:
                 poster_url = self.tmdb_service.get_poster_url(poster_path)
@@ -212,7 +211,8 @@ class AnnounceHandler:
     async def _generate_announcement(
         self, 
         movie_info: Optional[dict], 
-        custom_prompt: Optional[str]
+        custom_prompt: Optional[str],
+        custom_synopsis: Optional[str] = None
     ) -> str:
         """
         Generate announcement dengan Gemini AI.
@@ -220,6 +220,7 @@ class AnnounceHandler:
         Args:
             movie_info: Movie info dari TMDB (optional)
             custom_prompt: Custom prompt dari user (optional)
+            custom_synopsis: Custom synopsis dari user dengan [sinopsis] tag (optional)
             
         Returns:
             Generated announcement text
@@ -229,7 +230,8 @@ class AnnounceHandler:
                 # Generate dengan movie info
                 announcement = await self.gemini_service.generate_announcement(
                     movie_info,
-                    custom_prompt
+                    custom_prompt,
+                    custom_synopsis
                 )
             else:
                 # Generate dengan custom prompt saja

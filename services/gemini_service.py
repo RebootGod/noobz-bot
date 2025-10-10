@@ -57,7 +57,8 @@ class GeminiService:
     async def generate_announcement(
         self, 
         movie_info: Dict[str, Any], 
-        custom_prompt: Optional[str] = None
+        custom_prompt: Optional[str] = None,
+        custom_synopsis: Optional[str] = None
     ) -> str:
         """
         Generate announcement text untuk movie.
@@ -65,6 +66,7 @@ class GeminiService:
         Args:
             movie_info: Dictionary berisi info movie dari TMDB
             custom_prompt: Custom prompt dari user (optional)
+            custom_synopsis: Custom synopsis dari user (optional, override TMDB synopsis)
             
         Returns:
             Generated announcement text
@@ -77,7 +79,7 @@ class GeminiService:
         
         try:
             # Build prompt
-            prompt = self._build_announcement_prompt(movie_info, custom_prompt)
+            prompt = self._build_announcement_prompt(movie_info, custom_prompt, custom_synopsis)
             
             # Generate content
             response = self.model.generate_content(prompt)
@@ -103,7 +105,8 @@ class GeminiService:
     def _build_announcement_prompt(
         self, 
         movie_info: Dict[str, Any], 
-        custom_prompt: Optional[str] = None
+        custom_prompt: Optional[str] = None,
+        custom_synopsis: Optional[str] = None
     ) -> str:
         """
         Build prompt untuk Gemini AI.
@@ -111,6 +114,7 @@ class GeminiService:
         Args:
             movie_info: Dictionary berisi info movie
             custom_prompt: Custom prompt dari user
+            custom_synopsis: Custom synopsis dari user (override TMDB synopsis)
             
         Returns:
             Formatted prompt string
@@ -118,7 +122,7 @@ class GeminiService:
         # Extract movie info
         title = movie_info.get('title') or movie_info.get('name', 'Unknown')
         year = movie_info.get('release_date', '')[:4] if movie_info.get('release_date') else ''
-        overview = movie_info.get('overview', '')
+        overview = custom_synopsis if custom_synopsis else movie_info.get('overview', '')
         genres = ', '.join([g['name'] for g in movie_info.get('genres', [])])
         rating = movie_info.get('vote_average', 0)
         

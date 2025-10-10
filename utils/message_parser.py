@@ -23,9 +23,11 @@ class ParsedCommand:
     year: Optional[int] = None
     tmdb_id: Optional[int] = None
     custom_prompt: Optional[str] = None
+    custom_synopsis: Optional[str] = None  # For [sinopsis] tag
     raw_text: str = ""
     is_valid: bool = False
     error_message: Optional[str] = None
+
 
 
 class MessageParser:
@@ -38,6 +40,7 @@ class MessageParser:
     ANNOUNCE_PATTERN = r'^/announce\s+(?:"([^"]+)"|(\S+))\s+(.+)$'
     INFOFILM_PATTERN = r'^/infofilm\s+@(\w+)\s+\[(\d+)\]$'
     TMDB_ID_PATTERN = r'\[(\d+)\]'
+    SYNOPSIS_PATTERN = r'\[sinopsis\]\s*(.+?)(?=\[|$)'  # Match [sinopsis] content until next [ or end
     
     def __init__(self):
         """Initialize parser."""
@@ -101,6 +104,14 @@ class MessageParser:
             # Remove quotes from target if present
             target = target.strip().strip('"')
             
+            # Extract custom synopsis jika ada [sinopsis]
+            custom_synopsis = None
+            synopsis_match = re.search(self.SYNOPSIS_PATTERN, prompt, re.IGNORECASE | re.DOTALL)
+            if synopsis_match:
+                custom_synopsis = synopsis_match.group(1).strip()
+                # Remove [sinopsis]...content dari prompt
+                prompt = re.sub(self.SYNOPSIS_PATTERN, '', prompt, flags=re.IGNORECASE | re.DOTALL).strip()
+            
             # Extract TMDB ID jika ada
             tmdb_id = None
             tmdb_match = re.search(self.TMDB_ID_PATTERN, prompt)
@@ -116,6 +127,7 @@ class MessageParser:
                 target=target,
                 tmdb_id=tmdb_id,
                 custom_prompt=custom_prompt,
+                custom_synopsis=custom_synopsis,
                 raw_text=message_text,
                 is_valid=True
             )
