@@ -64,9 +64,9 @@ class AnnounceHandler:
                     'message': f"Channel/group '{parsed_command.target}' tidak ditemukan"
                 }
             
-            # Step 2: Get movie/series info jika ada title+year (OPTIONAL)
+            # Step 2: Get movie/series info jika ada media_type + title_year (OPTIONAL)
             movie_info = None
-            if parsed_command.title_year:
+            if parsed_command.media_type and parsed_command.title_year:
                 logger.info(f"Searching {parsed_command.media_type} with title: {parsed_command.title_year}")
                 movie_info = await search_content(
                     self.tmdb_service,
@@ -80,7 +80,7 @@ class AnnounceHandler:
                         'message': f"{parsed_command.media_type.capitalize()} '{parsed_command.title_year}' tidak ditemukan"
                     }
             else:
-                logger.info("No title provided, generating announcement from context only")
+                logger.info("No media type/title provided, generating announcement from context only")
             
             # Step 3: Generate announcement dengan AI
             logger.info("Generating announcement with Gemini AI...")

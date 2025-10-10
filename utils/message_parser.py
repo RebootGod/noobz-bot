@@ -38,10 +38,11 @@ class MessageParser:
     """
     
     # Regex patterns
-    # Pattern untuk handle [movies/series] di awal, lalu target (quoted atau unquoted), lalu prompt
-    # Format: /announce [movies/series] Target Context [optional tags]
-    ANNOUNCE_PATTERN = r'^/announce\s+\[(movies|series)\]\s+(?:"([^"]+)"|(\S+))\s+(.+)$'
+    # Pattern untuk handle target (quoted atau unquoted), lalu prompt
+    # Format: /announce Target Context [optional: movies/series, judul tahun, sinopsis]
+    ANNOUNCE_PATTERN = r'^/announce\s+(?:"([^"]+)"|(\S+))\s+(.+)$'
     INFOFILM_PATTERN = r'^/infofilm\s+@(\w+)\s+\[(\d+)\]$'
+    MEDIA_TYPE_PATTERN = r'\[(movies|series)\]'  # Match [movies] atau [series] (optional)
     TITLE_YEAR_PATTERN = r'\[([^\[\]]+\s+\d{4})\]'  # Match [Judul Tahun] e.g. [Fight Club 1999]
     SYNOPSIS_PATTERN = r'\[sinopsis\]\s*(.+?)(?=\[|$)'  # Match [sinopsis] content until next [ or end
     
@@ -80,8 +81,10 @@ class MessageParser:
         """
         Parse /announce command.
         
-        Format: /announce [movies/series] <channel/group name> <prompt> [judul tahun]
-        Support quoted target: /announce [movies] "Channel Name" prompt [Fight Club 1999]
+        Format: 
+        - /announce <channel> <context>
+        - /announce <channel> [movies/series] <context> [judul tahun]
+        - /announce <channel> [movies/series] <context> [sinopsis] <text> [judul tahun]
         
         Args:
             message_text: Raw message text
@@ -97,16 +100,23 @@ class MessageParser:
                     command='announce',
                     raw_text=message_text,
                     is_valid=False,
-                    error_message='Invalid format. Use: /announce [movies/series] <channel/group name> <prompt> [judul tahun]'
+                    error_message='Invalid format. Use: /announce <channel> <context> or /announce <channel> [movies/series] <context> [judul tahun]'
                 )
             
-            # Group 1 = media_type, Group 2 = quoted target, Group 3 = unquoted target, Group 4 = prompt
-            media_type = match.group(1).lower()
-            target = match.group(2) if match.group(2) else match.group(3)
-            prompt = match.group(4).strip()
+            # Group 1 = quoted target, Group 2 = unquoted target, Group 3 = prompt
+            target = match.group(1) if match.group(1) else match.group(2)
+            prompt = match.group(3).strip()
             
             # Remove quotes from target if present
             target = target.strip().strip('"')
+            
+            # Extract media type (OPTIONAL)
+            media_type = None
+            media_match = re.search(self.MEDIA_TYPE_PATTERN, prompt, re.IGNORECASE)
+            if media_match:
+                media_type = media_match.group(1).lower()
+                # Remove [movies/series] dari prompt
+                prompt = re.sub(self.MEDIA_TYPE_PATTERN, '', prompt, flags=re.IGNORECASE).strip()
             
             # Extract custom synopsis jika ada [sinopsis]
             custom_synopsis = None
@@ -125,6 +135,15 @@ class MessageParser:
                 custom_prompt = re.sub(self.TITLE_YEAR_PATTERN, '', prompt).strip()
             else:
                 custom_prompt = prompt
+            
+            # Validation: Jika ada title_year, media_type HARUS ada
+            if title_year and not media_type:
+                return ParsedCommand(
+                    command='announce',
+                    raw_text=message_text,
+                    is_valid=False,
+                    error_message='Media type required when using [judul tahun]! Use [movies] or [series]'
+                )
             
             return ParsedCommand(
                 command='announce',

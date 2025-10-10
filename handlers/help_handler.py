@@ -57,29 +57,29 @@ class HelpHandler:
 🤖 **Noobz Bot - Daftar Command**
 
 📢 **Announce Command**
-Kirim announcement film/series ke channel/group dengan AI-powered content.
+Kirim announcement ke channel/group dengan AI-powered content.
 
 Format:
 ```
-/announce [movies/series] [Target] [Context] [Judul Tahun]
-/announce [movies/series] [Target] [Context]
-/announce [movies/series] [Target] [Context] [sinopsis] (Custom synopsis) [Judul Tahun]
+/announce [Target] [Context]
+/announce [Target] [movies/series] [Context] [Judul Tahun]
+/announce [Target] [movies/series] [Context] [sinopsis] (Custom synopsis) [Judul Tahun]
 ```
 
 Contoh:
 ```
-/announce [movies] Test Channel Ada film baru nih! [Fight Club 1999]
-/announce [series] @channelku Rekomendasi series bagus [Breaking Bad 2008]
-/announce [movies] "My Group" Film action seru
-/announce [movies] Noobz Space [sinopsis] Film tentang robot AI yang jatuh cinta [Her 2013]
+/announce "Noobz Space" Ada konten baru nih!
+/announce TestChannel [movies] Film action keren [Inception 2010]
+/announce @channelku [series] Rekomendasi bagus [Breaking Bad 2008]
+/announce "My Group" [movies] [sinopsis] Film tentang mimpi berlapis yang mind-blowing [Inception 2010]
 ```
 
 Parameter:
-• **[movies/series]**: **WAJIB!** Pilih tipe konten
 • **Target**: Nama channel/group (bisa pakai "" jika ada spasi) atau username @channelname
-• **Context**: Konteks/tema untuk AI (opsional, default "Ada film baru")
-• **[Judul Tahun]**: Judul + tahun rilis (opsional, contoh: [Inception 2010])
-• **[sinopsis]**: Tag untuk custom synopsis (opsional)
+• **Context**: Konteks/tema untuk AI
+• **[movies/series]**: Opsional - pilih tipe konten (wajib jika pakai [Judul Tahun])
+• **[Judul Tahun]**: Opsional - judul + tahun rilis (contoh: [Fight Club 1999])
+• **[sinopsis]**: Opsional - custom synopsis untuk AI generation
 
 ---
 
