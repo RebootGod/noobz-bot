@@ -41,9 +41,9 @@ class UploadMovieHandler:
             Dict dengan success status dan message
         """
         try:
-            user_id = parsed_command.get('user_id')
-            username = parsed_command.get('username', 'unknown')
-            message_text = parsed_command.get('message', '')
+            user_id = getattr(parsed_command, 'user_id', None)
+            username = getattr(parsed_command, 'username', 'unknown')
+            message_text = getattr(parsed_command, 'message', '')
             
             # Check authorization
             if not self.auth_config.is_authorized(user_id):
