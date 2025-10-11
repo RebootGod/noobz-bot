@@ -53,12 +53,16 @@ class UploadParser:
         if match:
             return int(match.group(1))
         
-        # Try standalone number di awal message
+        # Try standalone number di awal message (after command)
         lines = text.strip().split('\n')
         if lines:
             first_line = lines[0].strip()
-            if first_line.isdigit():
-                return int(first_line)
+            # Remove command if present (e.g., "/uploadmovie 12345")
+            first_line = re.sub(r'^/\w+\s+', '', first_line)
+            # Extract first number from line
+            numbers = re.findall(r'\b(\d+)\b', first_line)
+            if numbers:
+                return int(numbers[0])
         
         return None
     
