@@ -76,12 +76,22 @@ class MessageParser:
             return self._parse_infofilm(message_text)
         elif message_text.startswith('/help'):
             return self._parse_help(message_text)
+        elif message_text.startswith('/uploadmovie'):
+            return self._parse_upload_command(message_text, 'uploadmovie')
+        elif message_text.startswith('/uploadseries'):
+            return self._parse_upload_command(message_text, 'uploadseries')
+        elif message_text.startswith('/uploadseason'):
+            return self._parse_upload_command(message_text, 'uploadseason')
+        elif message_text.startswith('/uploadepisode'):
+            return self._parse_upload_command(message_text, 'uploadepisode')
+        elif message_text.startswith('/uploadhelp'):
+            return self._parse_upload_command(message_text, 'uploadhelp')
         else:
             return ParsedCommand(
                 command='unknown',
                 raw_text=message_text,
                 is_valid=False,
-                error_message='Unknown command. Use /announce, /infofilm, or /help'
+                error_message='Unknown command. Use /help or /uploadhelp for available commands'
             )
     
     def _parse_announce(self, message_text: str) -> ParsedCommand:
@@ -235,6 +245,24 @@ class MessageParser:
         """
         return ParsedCommand(
             command='help',
+            raw_text=message_text,
+            is_valid=True
+        )
+    
+    def _parse_upload_command(self, message_text: str, command_type: str) -> ParsedCommand:
+        """
+        Parse upload commands (uploadmovie, uploadseries, uploadseason, uploadepisode, uploadhelp).
+        Upload handlers will parse the full message content themselves.
+        
+        Args:
+            message_text: Raw message text
+            command_type: Type of upload command
+            
+        Returns:
+            ParsedCommand object
+        """
+        return ParsedCommand(
+            command=command_type,
             raw_text=message_text,
             is_valid=True
         )

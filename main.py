@@ -17,6 +17,11 @@ from utils.message_formatter import get_message_formatter
 from handlers.announce_handler import create_announce_handler
 from handlers.infofilm_handler import create_infofilm_handler
 from handlers.help_handler import create_help_handler
+from handlers.upload_movie_handler import UploadMovieHandler
+from handlers.upload_series_handler import UploadSeriesHandler
+from handlers.upload_season_handler import UploadSeasonHandler
+from handlers.upload_episode_handler import UploadEpisodeHandler
+from handlers.upload_help_handler import UploadHelpHandler
 
 # Setup logging
 logging.basicConfig(
@@ -49,6 +54,11 @@ class NoobzBot:
         self.announce_handler = None
         self.infofilm_handler = None
         self.help_handler = None
+        self.upload_movie_handler = None
+        self.upload_series_handler = None
+        self.upload_season_handler = None
+        self.upload_episode_handler = None
+        self.upload_help_handler = None
         self._is_running = False
     
     async def initialize(self):
@@ -90,6 +100,14 @@ class NoobzBot:
             self.announce_handler = create_announce_handler(self.client)
             self.infofilm_handler = create_infofilm_handler(self.client)
             self.help_handler = create_help_handler(self.client)
+            
+            # Initialize upload handlers
+            logger.info("Initializing upload handlers...")
+            self.upload_movie_handler = UploadMovieHandler(self.client)
+            self.upload_series_handler = UploadSeriesHandler(self.client)
+            self.upload_season_handler = UploadSeasonHandler(self.client)
+            self.upload_episode_handler = UploadEpisodeHandler(self.client)
+            self.upload_help_handler = UploadHelpHandler(self.client)
             
             logger.info("✅ All services initialized successfully")
             
@@ -148,6 +166,16 @@ class NoobzBot:
                 # Parse command
                 parsed_command = self.message_parser.parse(message_text)
                 
+                # Get user info for upload commands
+                sender = await event.get_sender()
+                user_id = sender.id if sender else None
+                username = sender.username if sender else 'unknown'
+                
+                # Add user info to parsed command
+                parsed_command.user_id = user_id
+                parsed_command.username = username
+                parsed_command.message = message_text
+                
                 # Handle based on command type
                 if parsed_command.command == 'announce':
                     result = await self.announce_handler.handle(parsed_command)
@@ -155,6 +183,16 @@ class NoobzBot:
                     result = await self.infofilm_handler.handle(parsed_command)
                 elif parsed_command.command == 'help':
                     result = await self.help_handler.handle(parsed_command)
+                elif parsed_command.command == 'uploadmovie':
+                    result = await self.upload_movie_handler.handle(parsed_command)
+                elif parsed_command.command == 'uploadseries':
+                    result = await self.upload_series_handler.handle(parsed_command)
+                elif parsed_command.command == 'uploadseason':
+                    result = await self.upload_season_handler.handle(parsed_command)
+                elif parsed_command.command == 'uploadepisode':
+                    result = await self.upload_episode_handler.handle(parsed_command)
+                elif parsed_command.command == 'uploadhelp':
+                    result = await self.upload_help_handler.handle(parsed_command)
                 elif parsed_command.command == 'unknown':
                     result = {
                         'success': False,
