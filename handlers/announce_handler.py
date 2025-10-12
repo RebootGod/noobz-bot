@@ -68,34 +68,65 @@ class AnnounceHandler:
             movie_info = None
             avg_episode_runtime = None
             if parsed_command.media_type:
-                # User specified media type, berarti mau search TMDB
-                search_query = None
-                # Priority 1: Use title_year if provided (format: [Judul 2024])
-                if parsed_command.title_year:
-                    search_query = parsed_command.title_year
-                    logger.info(f"Searching {parsed_command.media_type} with title+year: {search_query}")
-                # Priority 2: Use custom_prompt as search query
-                elif parsed_command.custom_prompt:
-                    search_query = parsed_command.custom_prompt.strip()
-                    logger.info(f"Searching {parsed_command.media_type} with prompt as query: {search_query}")
-                if search_query:
-                    movie_info = await search_content(
-                        self.tmdb_service,
-                        parsed_command.media_type, 
-                        search_query
-                    )
-                    if not movie_info:
+                # Check if using TMDB ID search (Priority 1)
+                if parsed_command.media_id:
+                    # Direct fetch by TMDB ID
+                    logger.info(f"Fetching {parsed_command.media_type} by TMDB ID: {parsed_command.media_id}")
+                    try:
+                        if parsed_command.media_type == 'movies':
+                            movie_info = await self.tmdb_service.get_movie_by_id(parsed_command.media_id)
+                        else:  # series
+                            movie_info = await self.tmdb_service.get_tv_by_id(parsed_command.media_id)
+                        
+                        if not movie_info:
+                            return {
+                                'success': False,
+                                'message': f"{parsed_command.media_type.capitalize()} dengan TMDB ID {parsed_command.media_id} tidak ditemukan"
+                            }
+                        
+                        # If series, fetch average episode runtime
+                        if parsed_command.media_type == 'series' and movie_info and movie_info.get('seasons'):
+                            from services.tmdb_episode_runtime import get_tmdb_episode_runtime_service
+                            episode_runtime_service = get_tmdb_episode_runtime_service()
+                            avg_episode_runtime = await episode_runtime_service.get_average_episode_runtime(
+                                movie_info['id'], movie_info['seasons']
+                            )
+                    except Exception as e:
+                        logger.error(f"Failed to fetch {parsed_command.media_type} by ID {parsed_command.media_id}: {e}")
                         return {
                             'success': False,
-                            'message': f"{parsed_command.media_type.capitalize()} '{search_query}' tidak ditemukan di TMDB"
+                            'message': f"Gagal mengambil data {parsed_command.media_type} dengan TMDB ID {parsed_command.media_id}: {str(e)}"
                         }
-                    # If series, fetch average episode runtime
-                    if parsed_command.media_type == 'series' and movie_info and movie_info.get('seasons'):
-                        from services.tmdb_episode_runtime import get_tmdb_episode_runtime_service
-                        episode_runtime_service = get_tmdb_episode_runtime_service()
-                        avg_episode_runtime = await episode_runtime_service.get_average_episode_runtime(
-                            movie_info['id'], movie_info['seasons']
+                else:
+                    # Search by title (Priority 2)
+                    # User specified media type, berarti mau search TMDB
+                    search_query = None
+                    # Priority 1: Use title_year if provided (format: [Judul 2024])
+                    if parsed_command.title_year:
+                        search_query = parsed_command.title_year
+                        logger.info(f"Searching {parsed_command.media_type} with title+year: {search_query}")
+                    # Priority 2: Use custom_prompt as search query
+                    elif parsed_command.custom_prompt:
+                        search_query = parsed_command.custom_prompt.strip()
+                        logger.info(f"Searching {parsed_command.media_type} with prompt as query: {search_query}")
+                    if search_query:
+                        movie_info = await search_content(
+                            self.tmdb_service,
+                            parsed_command.media_type, 
+                            search_query
                         )
+                        if not movie_info:
+                            return {
+                                'success': False,
+                                'message': f"{parsed_command.media_type.capitalize()} '{search_query}' tidak ditemukan di TMDB"
+                            }
+                        # If series, fetch average episode runtime
+                        if parsed_command.media_type == 'series' and movie_info and movie_info.get('seasons'):
+                            from services.tmdb_episode_runtime import get_tmdb_episode_runtime_service
+                            episode_runtime_service = get_tmdb_episode_runtime_service()
+                            avg_episode_runtime = await episode_runtime_service.get_average_episode_runtime(
+                                movie_info['id'], movie_info['seasons']
+                            )
             else:
                 # Context-only mode
                 logger.info("No media type provided, generating announcement from context only")

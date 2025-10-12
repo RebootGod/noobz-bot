@@ -11,9 +11,10 @@ logger = logging.getLogger(__name__)
 
 # Regex patterns
 MEDIA_TYPE_PATTERN = r'\[(movies|series)\]'
+MEDIA_TYPE_ID_PATTERN = r'\[(moviesid|seriesid)\]\s*\[(\d+)\]'  # Match [moviesid][123] or [seriesid][456]
 GEMINI_PATTERN = r'\[gemini\]'  # Match [gemini] tag
-# Match [Judul 2024] or [Judul] but NOT [movies], [series], [gemini], [sinopsis]
-TITLE_YEAR_PATTERN = r'\[(?!movies\]|series\]|gemini\]|sinopsis\])([^\[\]]+)\]'
+# Match [Judul 2024] or [Judul] but NOT [movies], [series], [gemini], [sinopsis], [moviesid], [seriesid]
+TITLE_YEAR_PATTERN = r'\[(?!movies\]|series\]|gemini\]|sinopsis\]|moviesid\]|seriesid\])([^\[\]]+)\]'
 SYNOPSIS_PATTERN = r'\[sinopsis\]\s*(.+?)(?=\[|$)'
 
 
@@ -35,6 +36,34 @@ def extract_media_type(prompt: str) -> Tuple[Optional[str], str]:
         prompt = re.sub(MEDIA_TYPE_PATTERN, '', prompt, flags=re.IGNORECASE).strip()
     
     return media_type, prompt
+
+
+def extract_media_type_id(prompt: str) -> Tuple[Optional[str], Optional[int], str]:
+    """
+    Extract media type ID ([moviesid][123] atau [seriesid][456]) dari prompt.
+    
+    Args:
+        prompt: Raw prompt text
+        
+    Returns:
+        Tuple of (media_type, tmdb_id, cleaned_prompt)
+        - media_type: 'movies' atau 'series' (without 'id' suffix)
+        - tmdb_id: TMDB ID as integer
+        - cleaned_prompt: Prompt with tags removed
+    """
+    media_type = None
+    tmdb_id = None
+    media_id_match = re.search(MEDIA_TYPE_ID_PATTERN, prompt, re.IGNORECASE)
+    if media_id_match:
+        # Extract type (moviesid -> movies, seriesid -> series)
+        type_with_id = media_id_match.group(1).lower()
+        media_type = type_with_id.replace('id', '')  # moviesid -> movies, seriesid -> series
+        tmdb_id = int(media_id_match.group(2))
+        # Remove [moviesid/seriesid][123] dari prompt
+        prompt = re.sub(MEDIA_TYPE_ID_PATTERN, '', prompt, flags=re.IGNORECASE).strip()
+    
+    return media_type, tmdb_id, prompt
+
 
 
 def extract_gemini_tag(prompt: str) -> Tuple[bool, str]:
@@ -111,5 +140,5 @@ def validate_media_type_requirement(title_year: Optional[str], media_type: Optio
         Error message jika validation failed, None jika OK
     """
     if title_year and not media_type:
-        return 'Media type required when using [judul tahun]! Use [movies] or [series]'
+        return 'Media type required when using [judul tahun]! Use [movies] or [series] or [moviesid][ID] or [seriesid][ID]'
     return None

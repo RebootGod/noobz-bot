@@ -88,38 +88,75 @@ Kirim announcement dengan AI-generated content ke channel/group.
 
 **Format:**
 ```
-/announce <channel/group name> <prompt with [tmdbid]>
+/announce <channel/group name> [options] <prompt>
 ```
 
-**Contoh:**
+**Options:**
+- `[gemini]` - Generate AI-enhanced announcement with Gemini
+- `[movies]` - Search movie by title
+- `[series]` - Search series by title
+- `[moviesid][ID]` - Get movie by TMDB ID directly (e.g., `[moviesid][550]`)
+- `[seriesid][ID]` - Get series by TMDB ID directly (e.g., `[seriesid][275177]`)
+- `[Judul]` or `[Judul 2024]` - Movie/series title with optional year (requires `[movies]` or `[series]`)
+- `[sinopsis]` - Custom synopsis
+
+**Contoh dengan TMDB ID (Recommended):**
 ```
-/announce Noobz Space Gue ada upload film baru [550] buatin announcement yang bagus dan menarik dong di channel Noobz Space
+/announce "Noobz Cinema" [moviesid][550] [gemini] Film keren banget! Fight Club udah bisa ditonton
+/announce TestChannel [seriesid][275177] Episode baru "Noobz Cinema" sudah ready!
 ```
+
+**Contoh dengan Title Search:**
+```
+/announce "Noobz Space" [movies] [gemini] Film bagus [Inception]
+/announce TestChannel [series] [gemini] Series keren [Breaking Bad 2008]
+```
+
+**Why use [moviesid]/[seriesid]?**
+- ✅ **Faster** - Direct fetch tanpa search
+- ✅ **More accurate** - Langsung dapat data yang tepat
+- ✅ **No ambiguity** - Tidak ada salah film/series
 
 Bot akan:
-1. Cari info film dari TMDB berdasarkan ID (550 = Fight Club)
-2. Generate announcement menarik dengan Gemini AI
-3. Send poster film + announcement ke channel/group "Noobz Space"
+1. Ambil info film/series dari TMDB (by ID atau search by title)
+2. Generate announcement menarik dengan Gemini AI (jika ada `[gemini]`)
+3. Send poster film/series + announcement ke channel/group
 4. Include link noobz.space dan channel Telegram
 
 ### Command: /infofilm
 
-Kirim info film ke user tertentu dengan personal message.
+Kirim info film/series ke user tertentu dengan personal message.
 
 **Format:**
 ```
-/infofilm @username <type> <keyword> <year>
+/infofilm @username [options] <prompt>
 ```
 
-**Contoh:**
+**Options:**
+- `[gemini]` - Generate AI-enhanced info with Gemini
+- `[movies]` - Search movie by title
+- `[series]` - Search series by title
+- `[moviesid][ID]` - Get movie by TMDB ID directly (e.g., `[moviesid][550]`)
+- `[seriesid][ID]` - Get series by TMDB ID directly (e.g., `[seriesid][275177]`)
+- `[Judul]` or `[Judul 2024]` - Movie/series title with optional year (requires `[movies]` or `[series]`)
+- `[sinopsis]` - Custom synopsis
+
+**Contoh dengan TMDB ID (Recommended):**
 ```
-/infofilm @userA movie qodrat 2023
+/infofilm @userA [moviesid][550] Film ini bagus banget bro!
+/infofilm @userB [seriesid][275177] [gemini] Series ini keren, wajib nonton!
+```
+
+**Contoh dengan Title Search:**
+```
+/infofilm @userA [movies] Film bagus [Inception]
+/infofilm @userB [series] [gemini] Series keren [Breaking Bad 2008]
 ```
 
 Bot akan:
-1. Cari film "Qodrat" (2023) di TMDB
-2. Format info film dengan poster + details
-3. Send poster film + info ke personal message @userA
+1. Ambil info film/series dari TMDB (by ID atau search by title)
+2. Format info dengan poster + details (with Gemini AI jika ada `[gemini]`)
+3. Send poster film/series + info ke personal message target user
 4. Include link noobz.space dan channel Telegram
 
 ## Project Structure

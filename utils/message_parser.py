@@ -10,6 +10,7 @@ from dataclasses import dataclass
 
 from utils.command_parse_helpers import (
     extract_media_type,
+    extract_media_type_id,
     extract_gemini_tag,
     extract_custom_synopsis,
     extract_title_year,
@@ -31,6 +32,7 @@ class ParsedCommand:
     year: Optional[int] = None
     tmdb_id: Optional[int] = None
     media_type: Optional[str] = None  # 'movies' atau 'series'
+    media_id: Optional[int] = None  # TMDB ID dari [moviesid][123] atau [seriesid][456]
     title_year: Optional[str] = None  # Format: "Judul Tahun" atau "Judul" saja
     use_gemini: bool = False  # True jika ada [gemini] tag
     custom_prompt: Optional[str] = None
@@ -101,6 +103,8 @@ class MessageParser:
         Format: 
         - /announce <channel> <context>
         - /announce <channel> [movies/series] <context> [judul tahun]
+        - /announce <channel> [moviesid][123] <context>
+        - /announce <channel> [seriesid][456] <context>
         - /announce <channel> [movies/series] <context> [sinopsis] <text> [judul tahun]
         
         Args:
@@ -128,7 +132,14 @@ class MessageParser:
             target = target.strip().strip('"')
             
             # Extract tags using helpers (order matters!)
-            media_type, prompt = extract_media_type(prompt)
+            # First check for [moviesid][123] or [seriesid][456]
+            media_type_from_id, media_id, prompt = extract_media_type_id(prompt)
+            
+            # Then check for regular [movies] or [series] (only if no ID tag found)
+            media_type = media_type_from_id
+            if not media_type:
+                media_type, prompt = extract_media_type(prompt)
+            
             use_gemini, prompt = extract_gemini_tag(prompt)
             custom_synopsis, prompt = extract_custom_synopsis(prompt)
             title_year, custom_prompt = extract_title_year(prompt)
@@ -147,6 +158,7 @@ class MessageParser:
                 command='announce',
                 target=target,
                 media_type=media_type,
+                media_id=media_id,
                 use_gemini=use_gemini,
                 title_year=title_year,
                 custom_prompt=custom_prompt,
@@ -171,6 +183,8 @@ class MessageParser:
         Format:
         - /infofilm @username <context>
         - /infofilm @username [movies/series] <context> [judul tahun]
+        - /infofilm @username [moviesid][123] <context>
+        - /infofilm @username [seriesid][456] <context>
         - /infofilm @username [movies/series] <context> [sinopsis] <text> [judul tahun]
         
         Args:
@@ -195,7 +209,14 @@ class MessageParser:
             prompt = match.group(2).strip()
             
             # Extract tags using helpers (order matters!)
-            media_type, prompt = extract_media_type(prompt)
+            # First check for [moviesid][123] or [seriesid][456]
+            media_type_from_id, media_id, prompt = extract_media_type_id(prompt)
+            
+            # Then check for regular [movies] or [series] (only if no ID tag found)
+            media_type = media_type_from_id
+            if not media_type:
+                media_type, prompt = extract_media_type(prompt)
+            
             use_gemini, prompt = extract_gemini_tag(prompt)
             custom_synopsis, prompt = extract_custom_synopsis(prompt)
             title_year, custom_prompt = extract_title_year(prompt)
@@ -214,6 +235,7 @@ class MessageParser:
                 command='infofilm',
                 target=username,
                 media_type=media_type,
+                media_id=media_id,
                 use_gemini=use_gemini,
                 title_year=title_year,
                 custom_prompt=custom_prompt,

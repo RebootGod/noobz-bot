@@ -64,6 +64,7 @@ Format:
 /announce [Target] [Context]
 /announce [Target] [gemini] [Context]
 /announce [Target] [movies/series] [Context] [Judul]
+/announce [Target] [moviesid/seriesid][TMDB_ID] [Context]
 /announce [Target] [movies/series] [gemini] [Context] [Judul 2024]
 /announce [Target] [movies/series] [gemini] [Context] [sinopsis] (synopsis) [Judul]
 ```
@@ -74,14 +75,17 @@ Contoh:
 /announce TestChannel [gemini] Cek konten baru yang keren!
 /announce @channelku [movies] Film bagus [Inception]
 /announce "My Group" [series] [gemini] Series keren [Breaking Bad 2008]
+/announce TestChannel [moviesid][550] [gemini] Film keren banget!
+/announce "Noobz Cinema" [seriesid][275177] Episode baru sudah ready!
 /announce TestChannel [movies] [gemini] [sinopsis] Film tentang mimpi berlapis [Inception]
 ```
 
 Parameter:
 • **Target**: Nama channel/group (bisa pakai "" jika ada spasi)
 • **[gemini]**: Opsional - enhance dengan AI generation
-• **[movies/series]**: Opsional - pilih tipe konten untuk search TMDB
-• **[Judul]** atau **[Judul 2024]**: Judul film/series (tahun opsional)
+• **[movies/series]**: Opsional - pilih tipe konten untuk search TMDB by title
+• **[moviesid][ID]** atau **[seriesid][ID]**: Opsional - cari by TMDB ID (contoh: [moviesid][550])
+• **[Judul]** atau **[Judul 2024]**: Judul film/series (tahun opsional) - hanya untuk [movies/series]
 • **[sinopsis]**: Opsional - custom synopsis
 • **Context**: Konteks/tema announcement
 
@@ -95,6 +99,7 @@ Format:
 /infofilm @username [Context]
 /infofilm @username [gemini] [Context]
 /infofilm @username [movies/series] [Context] [Judul]
+/infofilm @username [moviesid/seriesid][TMDB_ID] [Context]
 /infofilm @username [movies/series] [gemini] [Context] [Judul 2024]
 /infofilm @username [movies/series] [gemini] [Context] [sinopsis] (synopsis) [Judul]
 ```
@@ -105,14 +110,17 @@ Contoh:
 /infofilm @username [gemini] Cek film ini
 /infofilm @user [movies] Film bagus [Inception]
 /infofilm @johndoe [series] [gemini] Series keren [Breaking Bad 2008]
+/infofilm @username [moviesid][550] Film ini bagus banget!
+/infofilm @johndoe [seriesid][275177] Series ini keren!
 /infofilm @username [movies] [gemini] [sinopsis] Film mind-bending [Inception]
 ```
 
 Parameter:
 • **@username**: Username Telegram target (harus pakai @)
 • **[gemini]**: Opsional - enhance dengan AI generation
-• **[movies/series]**: Opsional - pilih tipe konten untuk search TMDB
-• **[Judul]** atau **[Judul 2024]**: Judul film/series (tahun opsional)
+• **[movies/series]**: Opsional - pilih tipe konten untuk search TMDB by title
+• **[moviesid][ID]** atau **[seriesid][ID]**: Opsional - cari by TMDB ID (contoh: [seriesid][275177])
+• **[Judul]** atau **[Judul 2024]**: Judul film/series (tahun opsional) - hanya untuk [movies/series]
 • **[sinopsis]**: Opsional - custom synopsis
 • **Context**: Konteks/pesan
 """

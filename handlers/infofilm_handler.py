@@ -67,35 +67,58 @@ class InfoFilmHandler:
             
             # Check if user wants to search TMDB
             if parsed_command.media_type:
-                # User specified media type, berarti mau search
-                search_query = None
-                
-                # Priority 1: Use title_year if provided (format: [Judul 2024])
-                if parsed_command.title_year:
-                    search_query = parsed_command.title_year
-                    logger.info(f"Searching {parsed_command.media_type} with title+year: {search_query}")
-                # Priority 2: Use custom_prompt as search query
-                elif parsed_command.custom_prompt:
-                    search_query = parsed_command.custom_prompt.strip()
-                    logger.info(f"Searching {parsed_command.media_type} with prompt as query: {search_query}")
-                
-                if search_query:
-                    movie_info = await search_content(
-                        self.tmdb_service,
-                        parsed_command.media_type, 
-                        search_query
-                    )
-                    
-                    if not movie_info:
+                # Check if using TMDB ID search (Priority 1)
+                if parsed_command.media_id:
+                    # Direct fetch by TMDB ID
+                    logger.info(f"Fetching {parsed_command.media_type} by TMDB ID: {parsed_command.media_id}")
+                    try:
+                        if parsed_command.media_type == 'movies':
+                            movie_info = await self.tmdb_service.get_movie_by_id(parsed_command.media_id)
+                        else:  # series
+                            movie_info = await self.tmdb_service.get_tv_by_id(parsed_command.media_id)
+                        
+                        if not movie_info:
+                            return {
+                                'success': False,
+                                'message': f"{parsed_command.media_type.capitalize()} dengan TMDB ID {parsed_command.media_id} tidak ditemukan"
+                            }
+                    except Exception as e:
+                        logger.error(f"Failed to fetch {parsed_command.media_type} by ID {parsed_command.media_id}: {e}")
                         return {
                             'success': False,
-                            'message': f"{parsed_command.media_type.capitalize()} '{search_query}' tidak ditemukan di TMDB"
+                            'message': f"Gagal mengambil data {parsed_command.media_type} dengan TMDB ID {parsed_command.media_id}: {str(e)}"
                         }
                 else:
-                    return {
-                        'success': False,
-                        'message': f"Tidak ada judul untuk dicari. Format: /infofilm @user [movies/series] <judul film>"
-                    }
+                    # Search by title (Priority 2)
+                    # User specified media type, berarti mau search
+                    search_query = None
+                    
+                    # Priority 1: Use title_year if provided (format: [Judul 2024])
+                    if parsed_command.title_year:
+                        search_query = parsed_command.title_year
+                        logger.info(f"Searching {parsed_command.media_type} with title+year: {search_query}")
+                    # Priority 2: Use custom_prompt as search query
+                    elif parsed_command.custom_prompt:
+                        search_query = parsed_command.custom_prompt.strip()
+                        logger.info(f"Searching {parsed_command.media_type} with prompt as query: {search_query}")
+                    
+                    if search_query:
+                        movie_info = await search_content(
+                            self.tmdb_service,
+                            parsed_command.media_type, 
+                            search_query
+                        )
+                        
+                        if not movie_info:
+                            return {
+                                'success': False,
+                                'message': f"{parsed_command.media_type.capitalize()} '{search_query}' tidak ditemukan di TMDB"
+                            }
+                    else:
+                        return {
+                            'success': False,
+                            'message': f"Tidak ada judul untuk dicari. Format: /infofilm @user [movies/series] <judul film>"
+                        }
             else:
                 # Context-only mode: tidak ada movie info
                 logger.info("No media type provided, sending context-only message")
