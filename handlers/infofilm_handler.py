@@ -226,6 +226,25 @@ class InfoFilmHandler:
                         'message': f"Gagal mengirim info: {str(e)}"
                     }
             
+            # Send join group message after successful info delivery
+            try:
+                join_group_message = "Join Group: https://t.me/+5xxxSrAujtliOTQ0"
+                if use_multi_account:
+                    await self.multi_account_manager.send_with_fallback(
+                        target_user,
+                        message=join_group_message,
+                        parse_mode='markdown'
+                    )
+                else:
+                    await self.client.send_message(
+                        target_user,
+                        join_group_message,
+                        parse_mode='markdown'
+                    )
+                logger.info("Successfully sent join group message")
+            except Exception as e:
+                logger.warning(f"Failed to send join group message: {e}")
+            
             return {
                 'success': True,
                 'message': f"Info '{title}' berhasil dikirim ke @{parsed_command.target}",
