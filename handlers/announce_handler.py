@@ -219,25 +219,6 @@ class AnnounceHandler:
                         'message': f"Gagal mengirim announcement: {str(e)}"
                     }
             
-            # Send join group message after successful announcement
-            try:
-                join_group_message = "Join Group: https://t.me/+5xxxSrAujtliOTQ0"
-                if use_multi_account:
-                    await self.multi_account_manager.send_with_fallback(
-                        target_entity,
-                        message=join_group_message,
-                        parse_mode='markdown'
-                    )
-                else:
-                    await self.client.send_message(
-                        target_entity,
-                        join_group_message,
-                        parse_mode='markdown'
-                    )
-                logger.info("Successfully sent join group message")
-            except Exception as e:
-                logger.warning(f"Failed to send join group message: {e}")
-            
             return {
                 'success': True,
                 'message': f"Announcement berhasil dikirim ke {parsed_command.target}",

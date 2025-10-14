@@ -96,7 +96,7 @@ class GeminiService:
                 extra = f"\nSinopsis: {movie_info.get('overview', '')}" if movie_info.get('overview') else ''
                 announcement = (announcement + extra).strip()
                 if len(announcement) < MIN_LENGTH:
-                    announcement += "\nYuk nonton di noobz.space dan join channel t.me/noobzspace!"
+                    announcement += "\nYuk nonton di noobz.space, join channel t.me/noobzspace dan join group!"
             # Truncate to max 400 characters if needed
             if len(announcement) > MAX_LENGTH:
                 announcement = announcement[:MAX_LENGTH].rsplit(' ', 1)[0] + '...'

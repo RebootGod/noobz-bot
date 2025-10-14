@@ -106,7 +106,8 @@ class MessageFormatter:
                 message += "\n" + "\n".join(season_lines) + "\n"
 
         message += f"\n🔗 Nonton di: {self.website_url}\n"
-        message += f"📢 Join channel: t.me/noobzspace"
+        message += f"📢 Join channel: t.me/noobzspace\n"
+        message += f"👥 Join Group: https://t.me/+5xxxSrAujtliOTQ0"
         
         return message
     
@@ -177,7 +178,8 @@ class MessageFormatter:
         # Add website link
         if tmdb_id:
             message += f"\n🔗 **Nonton di:** {self.website_url}\n"
-            message += f"� **Join channel:** t.me/noobzspace\n"
+            message += f"📢 **Join channel:** t.me/noobzspace\n"
+            message += f"👥 **Join Group:** https://t.me/+5xxxSrAujtliOTQ0\n"
         message += "\n✨ Selamat menonton!"
         return message.strip()
     
