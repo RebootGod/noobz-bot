@@ -159,14 +159,17 @@ class SeriesUploadHandler:
             # Create series in database
             result = await self.noobz_api_service.create_series(tmdb_id)
             
-            if not result['success']:
+            # Deep checking: avoid showing both error and success for ambiguous API responses
+            error_msg = result.get('message', '') or ''
+            is_success = result.get('success', False)
+            
+            # If API returns ambiguous message but status indicates success, treat as success
+            if not is_success and not ('queued successfully' in error_msg.lower() or 'created successfully' in error_msg.lower()):
                 # Check if series already exists
-                error_msg = result.get('message', 'Unknown error')
-                
                 if 'already exists' in error_msg.lower() or 'duplicate' in error_msg.lower():
                     fail_msg = SeriesMessages.series_exists(series_data['title'])
                 else:
-                    fail_msg = SeriesMessages.series_create_error(error_msg)
+                    fail_msg = SeriesMessages.series_create_error(error_msg or 'Unknown error')
                 
                 await fetching_msg.edit_text(
                     fail_msg,

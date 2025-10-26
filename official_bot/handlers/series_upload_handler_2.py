@@ -404,12 +404,17 @@ class SeriesUploadHandlerPart2:
                     download_url=ep_data.get('download_url')
                 )
                 
-                if result['success']:
+                # Deep checking: avoid counting ambiguous responses as failure
+                error_msg = result.get('message', '') or ''
+                is_success = result.get('success', False)
+                
+                # If API returns ambiguous message like "queued successfully", treat as success
+                if is_success or ('queued successfully' in error_msg.lower() or 'created successfully' in error_msg.lower()):
                     success_count += 1
                 else:
                     failed_episodes.append({
                         'episode': ep_data['episode_number'],
-                        'error': result.get('message', 'Unknown error')
+                        'error': error_msg or 'Unknown error'
                     })
             
             # Show summary

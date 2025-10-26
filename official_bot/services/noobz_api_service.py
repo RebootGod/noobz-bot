@@ -192,6 +192,9 @@ class NoobzApiService:
                     
                     response_data = await response.json()
                     
+                    # DEBUG: Log raw response from Laravel
+                    logger.info(f"🔍 RAW API Response (Series) - Status: {response.status}, Data: {response_data}")
+                    
                     if response.status == 409:
                         logger.warning(f"Series already exists: {response_data.get('message')}")
                         return {
@@ -200,7 +203,8 @@ class NoobzApiService:
                             'message': response_data.get('message', 'Series already exists')
                         }
                     
-                    if response.status != 201:
+                    # Accept both 200 and 201 as success
+                    if response.status not in [200, 201]:
                         error_msg = response_data.get('message', 'Unknown error')
                         logger.error(f"Failed to create series: {error_msg}")
                         return {
@@ -213,7 +217,8 @@ class NoobzApiService:
                     
                     return {
                         'success': True,
-                        'data': response_data.get('data', {})
+                        'data': response_data.get('data', {}),
+                        'message': response_data.get('message', 'Series created successfully')
                     }
         
         except aiohttp.ClientTimeout:
