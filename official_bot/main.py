@@ -129,7 +129,7 @@ def setup_master_password(auth_service: AuthService):
         sys.exit(1)
 
 
-def register_callback_handlers(application: Application, services: dict, help_handler):
+def register_callback_handlers(application: Application, services: dict, help_handler, movie_handler, movie_handler_2):
     """
     Register all callback query handlers.
     
@@ -137,25 +137,19 @@ def register_callback_handlers(application: Application, services: dict, help_ha
         application: Telegram application instance
         services: Dictionary of service instances
         help_handler: HelpHandler instance
+        movie_handler: MovieUploadHandler instance
+        movie_handler_2: MovieUploadHandlerPart2 instance
     """
     # Import handler classes
     from handlers.start_handler import StartHandler
     from handlers.auth_handler import AuthHandler
-    from handlers.movie_upload_handler import MovieUploadHandler
-    from handlers.movie_upload_handler_2 import MovieUploadHandlerPart2
     from handlers.series_upload_handler_1 import SeriesUploadHandler
     from handlers.series_upload_handler_2 import SeriesUploadHandlerPart2
     from handlers.password_manager_handler import PasswordManagerHandler
     
-    # Initialize handlers
+    # Initialize handlers (except movie handlers - already passed in)
     start_handler = StartHandler(services['session'])
     auth_handler = AuthHandler(services['auth'], services['session'])
-    movie_handler = MovieUploadHandler(
-        services['session'],
-        services['tmdb'],
-        services['noobz_api']
-    )
-    movie_handler_2 = MovieUploadHandlerPart2(movie_handler)
     series_handler = SeriesUploadHandler(
         services['session'],
         services['tmdb'],
@@ -329,14 +323,14 @@ def main():
         # Register command and message handlers
         register_start(application, services['session'])
         register_auth(application, services['auth'], services['session'])
-        register_movie(application, services['session'], services['tmdb'], services['noobz_api'])
+        movie_handler, movie_handler_2 = register_movie(application, services['session'], services['tmdb'], services['noobz_api'])
         register_password_manager(application, services['session'], services['auth'])
         
         # Register help handler
         help_handler = register_help(application)
         
         # Register callback handlers
-        register_callback_handlers(application, services, help_handler)
+        register_callback_handlers(application, services, help_handler, movie_handler, movie_handler_2)
         
         logger.info("✅ All handlers registered")
         
