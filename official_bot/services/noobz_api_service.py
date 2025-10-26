@@ -80,7 +80,8 @@ class NoobzApiService:
             }
         """
         try:
-            url = f"{self.api_url}/bot/movies"
+            url = f"{self.api_url}/api/bot/movies"
+            logger.info(f"Upload movie URL: {url}")
             
             payload = {
                 'tmdb_id': tmdb_id,

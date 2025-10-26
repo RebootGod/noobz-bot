@@ -265,7 +265,8 @@ class MovieUploadHandlerPart2:
                 else:
                     fail_msg = MovieMessages.upload_error(error_msg)
                 
-                keyboard = MovieUploadKeyboards.upload_failed()
+                # Show back to menu button
+                keyboard = MainMenuKeyboards.back_to_menu()
                 
                 await query.edit_message_text(
                     fail_msg,
@@ -282,7 +283,7 @@ class MovieUploadHandlerPart2:
             logger.error(f"Error in execute_upload: {e}", exc_info=True)
             
             error_msg = ErrorMessages.api_error()
-            keyboard = MovieUploadKeyboards.upload_failed()
+            keyboard = MainMenuKeyboards.back_to_menu()
             
             try:
                 await query.edit_message_text(
