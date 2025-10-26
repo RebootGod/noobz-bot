@@ -9,6 +9,7 @@ from .movie_upload_handler import MovieUploadHandler
 from .movie_upload_handler_2 import MovieUploadHandlerPart2, register_handlers as register_movie_handlers
 from .series_upload_handler_1 import SeriesUploadHandler
 from .series_upload_handler_2 import SeriesUploadHandlerPart2
+from .password_manager_handler import PasswordManagerHandler, register_handlers as register_password_handlers
 
 __all__ = [
     'StartHandler',
@@ -17,7 +18,9 @@ __all__ = [
     'MovieUploadHandlerPart2',
     'SeriesUploadHandler',
     'SeriesUploadHandlerPart2',
+    'PasswordManagerHandler',
     'register_start_handlers',
     'register_auth_handlers',
     'register_movie_handlers',
+    'register_password_handlers',
 ]

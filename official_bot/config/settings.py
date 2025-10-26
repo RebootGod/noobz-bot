@@ -33,6 +33,7 @@ class Settings:
     SESSION_EXPIRY_HOURS = int(os.getenv('SESSION_EXPIRY_HOURS', '24'))
     PASSWORD_MIN_LENGTH = int(os.getenv('PASSWORD_MIN_LENGTH', '8'))
     BCRYPT_ROUNDS = 12  # Cost factor for bcrypt
+    INITIAL_MASTER_PASSWORD = os.getenv('INITIAL_MASTER_PASSWORD')  # Set via environment
     
     # Bulk Upload Configuration
     MAX_BULK_EPISODES = int(os.getenv('MAX_BULK_EPISODES', '20'))
@@ -60,6 +61,12 @@ class Settings:
                 f"Missing required environment variables: {', '.join(missing)}\n"
                 "Please check your .env file."
             )
+    
+    @classmethod
+    def load(cls):
+        """Load and validate settings"""
+        cls.validate()
+        return cls
     
     @classmethod
     def get_api_headers(cls):
