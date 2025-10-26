@@ -62,8 +62,8 @@ def initialize_services(db: Database) -> dict:
         auth_service = AuthService(db)
         session_service = SessionService(db)
         context_service = ContextService(db)
-        tmdb_service = TmdbService()
-        noobz_api_service = NoobzApiService()
+        tmdb_service = TmdbService(Settings)
+        noobz_api_service = NoobzApiService(Settings)
         
         logger.info("All services initialized successfully")
         
