@@ -57,15 +57,15 @@ def initialize_services(db: Database) -> dict:
     Initialize all bot services.
     
     Args:
-        db: Database instance
+        db: Database instance (not used, services use global db instance)
         
     Returns:
         Dictionary of service instances
     """
     try:
-        auth_service = AuthService(db)
-        session_service = SessionService(db)
-        context_service = ContextService(db)
+        auth_service = AuthService()
+        session_service = SessionService()
+        context_service = ContextService()
         tmdb_service = TmdbService(Settings)
         noobz_api_service = NoobzApiService(Settings)
         
