@@ -12,7 +12,12 @@ from services.session_service import SessionService
 from services.tmdb_service import TmdbService
 from services.noobz_api_service import NoobzApiService
 from ui.messages import MovieMessages, ErrorMessages
-from ui.keyboards_movie import MovieUploadKeyboards, MoviePreviewKeyboards
+from ui.keyboards_movie import (
+    MovieUploadKeyboards,
+    MoviePreviewKeyboards,
+    get_movie_status_emoji,
+    format_movie_state_summary
+)
 from ui.formatters import MovieFormatters, URLFormatters
 from utils.validators import InputValidator
 
@@ -97,8 +102,8 @@ class MovieUploadHandler:
         state = context.user_data.get('movie_upload', {})
         
         # Build form display text
-        form_text = MovieUploadKeyboards.get_movie_status_emoji(state)
-        form_text += "\n\n" + MovieUploadKeyboards.format_movie_state_summary(state)
+        form_text = get_movie_status_emoji(state)
+        form_text += "\n\n" + format_movie_state_summary(state)
         
         # Get keyboard based on current state
         keyboard = MovieUploadKeyboards.movie_form(state)
@@ -208,7 +213,7 @@ class MovieUploadHandler:
             # Show movie preview
             preview_text = "✅ TMDB ID set\n\n"
             preview_text += MovieFormatters.format_movie_info(movie_data)
-            preview_text += "\n\n" + MovieUploadKeyboards.format_movie_state_summary(
+            preview_text += "\n\n" + format_movie_state_summary(
                 context.user_data['movie_upload']
             )
             
@@ -303,7 +308,7 @@ class MovieUploadHandler:
             
             # Show updated form
             success_text = "✅ Embed URL set\n\n"
-            success_text += MovieUploadKeyboards.format_movie_state_summary(
+            success_text += format_movie_state_summary(
                 context.user_data['movie_upload']
             )
             

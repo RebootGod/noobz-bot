@@ -8,7 +8,7 @@ from telegram import Update
 from telegram.ext import ContextTypes, MessageHandler, filters
 
 from ui.messages import MovieMessages, ErrorMessages
-from ui.keyboards_movie import MovieUploadKeyboards
+from ui.keyboards_movie import MovieUploadKeyboards, format_movie_state_summary
 from ui.formatters import URLFormatters
 from utils.validators import InputValidator
 
@@ -91,7 +91,7 @@ class MovieUploadHandlerPart2:
                 context.user_data['awaiting_movie_download_url'] = False
                 
                 success_text = "ℹ️ Download URL skipped\n\n"
-                success_text += MovieUploadKeyboards.format_movie_state_summary(
+                success_text += format_movie_state_summary(
                     context.user_data['movie_upload']
                 )
                 
@@ -125,7 +125,7 @@ class MovieUploadHandlerPart2:
             
             # Show updated form
             success_text = "✅ Download URL set\n\n"
-            success_text += MovieUploadKeyboards.format_movie_state_summary(
+            success_text += format_movie_state_summary(
                 context.user_data['movie_upload']
             )
             
