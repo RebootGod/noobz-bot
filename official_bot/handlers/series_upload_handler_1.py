@@ -86,7 +86,7 @@ class SeriesUploadHandler:
             logger.error(f"Error in start_series_upload: {e}", exc_info=True)
             await update.callback_query.answer("❌ Error starting upload")
     
-    async def handle_series_tmdb_id_input(
+    async def handle_tmdb_id_input(
         self, 
         update: Update, 
         context: ContextTypes.DEFAULT_TYPE
