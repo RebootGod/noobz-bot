@@ -75,9 +75,10 @@ class TmdbService:
         try:
             import aiohttp
             
-            url = f"{self.api_url}/bot/tmdb/movie/{tmdb_id}"
+            url = f"{self.api_url}/api/bot/tmdb/movie/{tmdb_id}"
             
             logger.info(f"Fetching movie data: TMDB ID {tmdb_id}")
+            logger.info(f"Request URL: {url}")
             
             async with aiohttp.ClientSession() as session:
                 async with session.get(url, headers=self.headers, timeout=30) as response:
