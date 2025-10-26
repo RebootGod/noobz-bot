@@ -85,10 +85,7 @@ class MovieMessages:
         """Ask for embed URL"""
         return (
             "Please enter Embed URL:\n\n"
-            "Example: https://vidsrc.to/embed/movie/550\n\n"
-            "⚠️ Only whitelisted domains are allowed:\n"
-            "• vidsrc.to\n"
-            "• embed.su"
+            "Example: https://vidsrc.to/embed/movie/550"
         )
     
     @staticmethod
@@ -417,12 +414,11 @@ class HelpMessages:
             "Steps:\n"
             "1. Click \"Upload Movie\" from main menu\n"
             "2. Enter TMDB ID of the movie\n"
-            "3. Enter embed URL (vidsrc.to or embed.su)\n"
+            "3. Enter embed URL\n"
             "4. (Optional) Enter download URL\n"
             "5. Confirm and upload\n\n"
             "Tips:\n"
             "• Find TMDB ID from themoviedb.org URL\n"
-            "• Only whitelisted domains are allowed\n"
             "• Movie will be published automatically"
         )
     
