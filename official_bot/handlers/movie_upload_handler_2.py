@@ -234,6 +234,9 @@ class MovieUploadHandlerPart2:
                 download_url=state.get('download_url')
             )
             
+            # Debug: Log actual API response
+            logger.info(f"API Response: success={result.get('success')}, message={result.get('message')}, data_keys={list(result.get('data', {}).keys())}")
+            
             if result['success']:
                 # Upload successful
                 success_msg = MovieMessages.upload_success(
