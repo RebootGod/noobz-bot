@@ -71,20 +71,21 @@ class AuthHandler:
                 return
             
             # Verify password
-            auth_result = self.auth_service.verify_password(password)
+            auth_result = self.auth_service.verify_password_attempt(password)
             
-            if not auth_result['success']:
-                await self._handle_auth_failure(update, context, auth_result.get('message'))
+            if not auth_result['valid']:
+                await self._handle_auth_failure(update, context, auth_result.get('error'))
                 return
             
             # Password correct, create session
-            password_data = auth_result['password']
-            is_master = password_data['password_type'] == 'master'
+            password_id = auth_result['password_id']
+            password_type = auth_result['password_type']
+            is_master = auth_result['is_master']
             
             session = self.session_service.create_session(
                 telegram_user_id=user.id,
                 telegram_username=user.username,
-                password_id=password_data['id'],
+                password_id=password_id,
                 is_master=is_master
             )
             
