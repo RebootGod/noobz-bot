@@ -205,7 +205,7 @@ class MovieUploadHandler:
             if not movie_data:
                 # TMDB fetch failed
                 await fetching_msg.edit_text(
-                    MovieMessages.tmdb_fetch_error(tmdb_id),
+                    MovieMessages.tmdb_fetch_failed(tmdb_id),
                     reply_markup=MoviePreviewKeyboards.tmdb_fetch_error(),
                     parse_mode='HTML'
                 )
