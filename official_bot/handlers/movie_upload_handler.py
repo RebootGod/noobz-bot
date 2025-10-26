@@ -132,6 +132,7 @@ class MovieUploadHandler:
             
             # Set state to awaiting TMDB ID
             context.user_data['awaiting_movie_tmdb_id'] = True
+            logger.info(f"Set awaiting_movie_tmdb_id=True for user {update.effective_user.id}")
             
             # Send prompt
             prompt = MovieMessages.ask_tmdb_id()
