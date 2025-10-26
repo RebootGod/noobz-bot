@@ -89,7 +89,7 @@ class SessionService:
                 'error': str(e)
             }
     
-    def get_session(self, telegram_user_id: int) -> Optional[Dict[str, Any]]:
+    def get_active_session(self, telegram_user_id: int) -> Optional[Dict[str, Any]]:
         """
         Get active session for a user
         
@@ -138,7 +138,7 @@ class SessionService:
         Returns:
             True if user is authenticated
         """
-        session = self.get_session(telegram_user_id)
+        session = self.get_active_session(telegram_user_id)
         return session is not None
     
     def is_master(self, telegram_user_id: int) -> bool:
@@ -151,7 +151,7 @@ class SessionService:
         Returns:
             True if user has master access
         """
-        session = self.get_session(telegram_user_id)
+        session = self.get_active_session(telegram_user_id)
         if session:
             return session['is_master'] == 1
         return False
@@ -351,7 +351,7 @@ def create_session(
 
 def get_session(telegram_user_id: int) -> Optional[Dict[str, Any]]:
     """Get user session"""
-    return session_service.get_session(telegram_user_id)
+    return session_service.get_active_session(telegram_user_id)
 
 
 def is_authenticated(telegram_user_id: int) -> bool:
