@@ -350,13 +350,26 @@ def register_handlers(application, session_service, tmdb_service, noobz_api_serv
         tmdb_service: TMDB service
         noobz_api_service: Noobz API service
     """
-    from .movie_upload_handler import MovieUploadHandler
+    import logging
+    logger = logging.getLogger(__name__)
     
-    # Create main handler
-    main_handler = MovieUploadHandler(session_service, tmdb_service, noobz_api_service)
-    
-    # Create part 2 handler
-    part2_handler = MovieUploadHandlerPart2(main_handler)
+    try:
+        logger.info("Importing MovieUploadHandler...")
+        from .movie_upload_handler import MovieUploadHandler
+        logger.info("MovieUploadHandler imported successfully")
+        
+        # Create main handler
+        logger.info("Creating main handler...")
+        main_handler = MovieUploadHandler(session_service, tmdb_service, noobz_api_service)
+        logger.info("Main handler created")
+        
+        # Create part 2 handler
+        logger.info("Creating part 2 handler...")
+        part2_handler = MovieUploadHandlerPart2(main_handler)
+        logger.info("Part 2 handler created")
+    except Exception as e:
+        logger.error(f"Error creating movie handlers: {e}", exc_info=True)
+        raise
     
     # Register message handlers for input
     application.add_handler(
