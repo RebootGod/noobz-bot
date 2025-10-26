@@ -28,6 +28,22 @@ Updated `main.py` to pass `Settings` class to `TmdbService()` and `NoobzApiServi
 
 ---
 
+### Fix 3: Wrong Class Name Import
+**Error:**
+```
+ImportError: cannot import name 'NoobzApiServicePart2' from 'services.noobz_api_service_2'
+Did you mean: 'NoobzApiServiceEpisodes'?
+```
+
+**Solution:**
+Updated `series_upload_handler_2.py`:
+- Changed import from `NoobzApiServicePart2` to `NoobzApiServiceEpisodes`
+- Added `Settings` parameter to constructor: `NoobzApiServiceEpisodes(Settings)`
+
+**Commit:** `2118005`
+
+---
+
 ## 🚀 Deployment Update Commands
 
 If bot is already running on VPS, update with:
