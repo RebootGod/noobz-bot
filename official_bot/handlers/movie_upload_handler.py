@@ -160,10 +160,13 @@ class MovieUploadHandler:
             update: Telegram update object
             context: Telegram context object
         """
+        # Log IMMEDIATELY when handler is called
+        logger.info("🔵 handle_tmdb_id_input CALLED")
+        
         try:
             # Check if we're expecting TMDB ID
             awaiting = context.user_data.get('awaiting_movie_tmdb_id', False)
-            logger.info(f"handle_tmdb_id_input called, awaiting={awaiting}")
+            logger.info(f"handle_tmdb_id_input awaiting check: {awaiting}")
             
             if not awaiting:
                 logger.info("Not awaiting TMDB ID, skipping")
@@ -286,11 +289,16 @@ class MovieUploadHandler:
             update: Telegram update object
             context: Telegram context object
         """
+        # Log IMMEDIATELY when handler is called
+        logger.info("🔵 handle_embed_url_input CALLED")
+        logger.info(f"🔍 user_data keys: {list(context.user_data.keys())}")
+        
         try:
-            logger.info(f"handle_embed_url_input called, awaiting={context.user_data.get('awaiting_movie_embed_url', False)}")
+            awaiting = context.user_data.get('awaiting_movie_embed_url', False)
+            logger.info(f"handle_embed_url_input awaiting check: {awaiting}")
             
             # Check if we're expecting embed URL
-            if not context.user_data.get('awaiting_movie_embed_url', False):
+            if not awaiting:
                 logger.info("Not awaiting embed URL, skipping")
                 return  # Skip processing, let other handlers try
             
