@@ -24,6 +24,7 @@ from handlers.start_handler import register_handlers as register_start
 from handlers.auth_handler import register_handlers as register_auth
 from handlers.movie_upload_handler_2 import register_handlers as register_movie
 from handlers.password_manager_handler import register_handlers as register_password_manager
+from handlers.help_handler import register_handlers as register_help
 
 # Import utilities
 from utils.logger import setup_logger
@@ -128,13 +129,14 @@ def setup_master_password(auth_service: AuthService):
         sys.exit(1)
 
 
-def register_callback_handlers(application: Application, services: dict):
+def register_callback_handlers(application: Application, services: dict, help_handler):
     """
     Register all callback query handlers.
     
     Args:
         application: Telegram application instance
         services: Dictionary of service instances
+        help_handler: HelpHandler instance
     """
     # Import handler classes
     from handlers.start_handler import StartHandler
@@ -175,6 +177,26 @@ def register_callback_handlers(application: Application, services: dict):
     )
     application.add_handler(
         CallbackQueryHandler(start_handler.handle_help, pattern='^menu_help$')
+    )
+    
+    # Help topic handlers
+    application.add_handler(
+        CallbackQueryHandler(help_handler.handle_help_menu, pattern='^menu_help$')
+    )
+    application.add_handler(
+        CallbackQueryHandler(help_handler.handle_help_movie, pattern='^help_movie$')
+    )
+    application.add_handler(
+        CallbackQueryHandler(help_handler.handle_help_series, pattern='^help_series$')
+    )
+    application.add_handler(
+        CallbackQueryHandler(help_handler.handle_help_bulk, pattern='^help_bulk$')
+    )
+    application.add_handler(
+        CallbackQueryHandler(help_handler.handle_help_manual, pattern='^help_manual$')
+    )
+    application.add_handler(
+        CallbackQueryHandler(help_handler.handle_help_password, pattern='^help_password$')
     )
     
     # Auth handlers
@@ -310,8 +332,11 @@ def main():
         register_movie(application, services['session'], services['tmdb'], services['noobz_api'])
         register_password_manager(application, services['session'], services['auth'])
         
+        # Register help handler
+        help_handler = register_help(application)
+        
         # Register callback handlers
-        register_callback_handlers(application, services)
+        register_callback_handlers(application, services, help_handler)
         
         logger.info("✅ All handlers registered")
         

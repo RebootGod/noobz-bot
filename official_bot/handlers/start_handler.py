@@ -223,7 +223,7 @@ class StartHandler:
         )
     
     async def handle_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        """Handle Help button"""
+        """Handle Help button - redirect to HelpHandler"""
         query = update.callback_query
         await query.answer()
         
@@ -237,15 +237,10 @@ class StartHandler:
             )
             return
         
-        # Show help menu
-        from ui.keyboards_main_auth import HelpKeyboards
-        
-        await query.edit_message_text(
-            "❓ <b>Help & Information</b>\n\n"
-            "Select a topic to learn more:",
-            parse_mode='HTML',
-            reply_markup=HelpKeyboards.help_menu()
-        )
+        # Import and use HelpHandler
+        from handlers.help_handler import HelpHandler
+        help_handler = HelpHandler()
+        await help_handler.handle_help_menu(update, context)
 
 
 def register_handlers(application, session_service: SessionService):
