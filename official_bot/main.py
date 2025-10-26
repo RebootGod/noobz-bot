@@ -310,10 +310,13 @@ def main():
 
         setup_master_password(services['auth'])
 
-        # Create application with PicklePersistence
+        # Create application with PicklePersistence (absolute path, next to main.py)
         logger.info("Creating Telegram application with PicklePersistence...")
+        from pathlib import Path
         from telegram.ext import PicklePersistence
-        persistence = PicklePersistence(filepath="official_bot/bot_persistence.pkl")
+        persistence_path = Path(__file__).resolve().with_name("bot_persistence.pkl")
+        logger.info(f"PicklePersistence file: {persistence_path}")
+        persistence = PicklePersistence(filepath=str(persistence_path))
         application = Application.builder().token(settings.TELEGRAM_BOT_TOKEN).persistence(persistence).build()
 
         # Register handlers
