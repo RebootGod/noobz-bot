@@ -324,12 +324,14 @@ def main():
         register_start(application, services['session'])
         register_auth(application, services['auth'], services['session'])
         movie_handler, movie_handler_2 = register_movie(application, services['session'], services['tmdb'], services['noobz_api'])
+        logger.info(f"✅ Movie handlers initialized: {movie_handler is not None}, {movie_handler_2 is not None}")
         register_password_manager(application, services['session'], services['auth'])
         
         # Register help handler
         help_handler = register_help(application)
         
         # Register callback handlers
+        logger.info("Registering callback handlers with movie handlers...")
         register_callback_handlers(application, services, help_handler, movie_handler, movie_handler_2)
         
         logger.info("✅ All handlers registered")
