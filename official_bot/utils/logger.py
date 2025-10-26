@@ -107,6 +107,23 @@ _bot_logger = BotLogger()
 logger = _bot_logger.get_logger()
 
 
+def setup_logger(name: str = None):
+    """
+    Setup and return logger instance
+    For compatibility with services that import setup_logger
+    
+    Args:
+        name: Logger name (optional, for child loggers)
+    
+    Returns:
+        Logger instance
+    """
+    if name:
+        # Return child logger
+        return logging.getLogger(name)
+    return logger
+
+
 # Convenience functions
 def debug(message: str):
     """Log debug message"""
