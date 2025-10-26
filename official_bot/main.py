@@ -23,6 +23,7 @@ from services.noobz_api_service import NoobzApiService
 from handlers.start_handler import register_handlers as register_start
 from handlers.auth_handler import register_handlers as register_auth
 from handlers.movie_upload_handler_2 import register_handlers as register_movie
+from handlers.series_upload_handler_2 import register_handlers as register_series
 from handlers.password_manager_handler import register_handlers as register_password_manager
 from handlers.help_handler import register_handlers as register_help
 
@@ -129,7 +130,7 @@ def setup_master_password(auth_service: AuthService):
         sys.exit(1)
 
 
-def register_callback_handlers(application: Application, services: dict, help_handler, movie_handler, movie_handler_2):
+def register_callback_handlers(application: Application, services: dict, help_handler, movie_handler, movie_handler_2, series_handler, series_handler_2):
     """
     Register all callback query handlers.
     
@@ -139,23 +140,17 @@ def register_callback_handlers(application: Application, services: dict, help_ha
         help_handler: HelpHandler instance
         movie_handler: MovieUploadHandler instance
         movie_handler_2: MovieUploadHandlerPart2 instance
+        series_handler: SeriesUploadHandler instance
+        series_handler_2: SeriesUploadHandlerPart2 instance (for series)
     """
     # Import handler classes
     from handlers.start_handler import StartHandler
     from handlers.auth_handler import AuthHandler
-    from handlers.series_upload_handler_1 import SeriesUploadHandler
-    from handlers.series_upload_handler_2 import SeriesUploadHandlerPart2
     from handlers.password_manager_handler import PasswordManagerHandler
     
-    # Initialize handlers (except movie handlers - already passed in)
+    # Initialize handlers (except movie and series handlers - already passed in)
     start_handler = StartHandler(services['session'])
     auth_handler = AuthHandler(services['auth'], services['session'])
-    series_handler = SeriesUploadHandler(
-        services['session'],
-        services['tmdb'],
-        services['noobz_api'],
-        services['context']
-    )
     password_handler = PasswordManagerHandler(services['session'], services['auth'])
     
     # Register callback handlers
@@ -247,8 +242,7 @@ def register_callback_handlers(application: Application, services: dict, help_ha
         CallbackQueryHandler(series_handler.cancel_series_upload, pattern='^series_cancel$')
     )
     
-    # Episode handlers (part 2)
-    series_handler_2 = SeriesUploadHandlerPart2(series_handler)
+    # Episode handlers (part 2) - use passed-in handler
     application.add_handler(
         CallbackQueryHandler(series_handler_2.prompt_bulk_upload, pattern='^bulk_upload_')
     )
@@ -293,7 +287,7 @@ def main():
     try:
         logger.info("=" * 60)
         logger.info("🚀 Starting Noobz Official Bot")
-        logger.info("🔧 VERSION: DEBUG-2025-10-26-17-50")  # Unique version marker
+        logger.info("🔧 VERSION: 2025-10-26-20-00-SERIES-HANDLER-FIX")  # Unique version marker
         logger.info("=" * 60)
         
         # Load settings
@@ -335,16 +329,20 @@ def main():
             movie_handler, movie_handler_2 = register_movie(application, services['session'], services['tmdb'], services['noobz_api'])
             logger.info(f"✅ Movie handlers initialized: {movie_handler is not None}, {movie_handler_2 is not None}")
             
-            logger.info("Step 4: Registering password manager...")
+            logger.info("Step 4: Registering series handler...")
+            series_handler, series_handler_2 = register_series(application, services['session'], services['tmdb'], services['noobz_api'], services['context'])
+            logger.info(f"✅ Series handlers initialized: {series_handler is not None}, {series_handler_2 is not None}")
+            
+            logger.info("Step 5: Registering password manager...")
             register_password_manager(application, services['session'], services['auth'])
             logger.info("✅ Password manager registered")
             
-            logger.info("Step 5: Registering help handler...")
+            logger.info("Step 6: Registering help handler...")
             help_handler = register_help(application)
             logger.info("✅ Help handler registered")
             
-            logger.info("Step 6: Registering callback handlers...")
-            register_callback_handlers(application, services, help_handler, movie_handler, movie_handler_2)
+            logger.info("Step 7: Registering callback handlers...")
+            register_callback_handlers(application, services, help_handler, movie_handler, movie_handler_2, series_handler, series_handler_2)
             logger.info("✅ Callback handlers registered")
             
         except Exception as e:
