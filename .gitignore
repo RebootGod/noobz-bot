@@ -5,6 +5,10 @@
 *.session
 *.session-journal
 
+# Bot persistence files (runtime state)
+official_bot/bot_persistence.pkl
+bot_persistence.pkl
+
 # Python
 __pycache__/
 *.py[cod]
