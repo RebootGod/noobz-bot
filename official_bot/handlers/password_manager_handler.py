@@ -379,6 +379,83 @@ class PasswordManagerHandler:
                 text=ErrorMessages.generic_error()
             )
             context.user_data['awaiting_password_notes'] = False
+    
+    async def handle_password_stats(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        """Handle View Stats button"""
+        query = update.callback_query
+        await query.answer()
+        
+        user = update.effective_user
+        session = self.session_service.get_active_session(user.id)
+        
+        if not session or not session['is_master']:
+            await query.answer("❌ Access denied", show_alert=True)
+            return
+        
+        # TODO: Implement actual stats
+        await query.edit_message_text(
+            "📊 <b>Upload Statistics</b>\n\n"
+            "🚧 This feature is coming soon!\n\n"
+            "Statistics will include:\n"
+            "• Total uploads per password\n"
+            "• Recent activity log\n"
+            "• Usage breakdown by type",
+            parse_mode='HTML',
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("🔙 Back to Manager", callback_data="menu_password_manager")
+            ]])
+        )
+    
+    async def handle_password_add(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        """Handle Add Password button - alias for prompt_password_type"""
+        await self.prompt_password_type(update, context)
+    
+    async def handle_password_revoke(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        """Handle Revoke Password button"""
+        query = update.callback_query
+        await query.answer()
+        
+        user = update.effective_user
+        session = self.session_service.get_active_session(user.id)
+        
+        if not session or not session['is_master']:
+            await query.answer("❌ Access denied", show_alert=True)
+            return
+        
+        # TODO: Implement password selection for revoke
+        await query.edit_message_text(
+            "🗑️ <b>Revoke Password</b>\n\n"
+            "🚧 This feature is coming soon!\n\n"
+            "You'll be able to:\n"
+            "• Select password to revoke\n"
+            "• View password details\n"
+            "• Confirm revocation",
+            parse_mode='HTML',
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("🔙 Back to Manager", callback_data="menu_password_manager")
+            ]])
+        )
+    
+    async def handle_password_cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        """Handle Cancel button in password creation flow"""
+        query = update.callback_query
+        await query.answer("Cancelled")
+        
+        # Clear state
+        context.user_data.pop('new_password_pending', None)
+        context.user_data.pop('creating_password_type', None)
+        context.user_data['awaiting_new_password'] = False
+        context.user_data['awaiting_password_confirmation'] = False
+        context.user_data['awaiting_password_notes'] = False
+        
+        # Return to password manager
+        await self.show_password_manager(update, context)
+    
+    async def handle_main_menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        """Handle Main Menu button - redirect to home"""
+        from handlers.start_handler import StartHandler
+        start_handler = StartHandler(self.session_service)
+        await start_handler.handle_home(update, context)
 
 
 def register_handlers(application, session_service: SessionService, auth_service: AuthService):

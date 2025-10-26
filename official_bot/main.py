@@ -248,10 +248,25 @@ def register_callback_handlers(application: Application, services: dict):
         CallbackQueryHandler(password_handler.show_password_manager, pattern='^password_manager$')
     )
     application.add_handler(
+        CallbackQueryHandler(password_handler.handle_password_add, pattern='^password_add$')
+    )
+    application.add_handler(
         CallbackQueryHandler(password_handler.prompt_password_type, pattern='^add_password$')
     )
     application.add_handler(
-        CallbackQueryHandler(password_handler.start_password_creation, pattern='^create_password_')
+        CallbackQueryHandler(password_handler.start_password_creation, pattern='^password_type_')
+    )
+    application.add_handler(
+        CallbackQueryHandler(password_handler.handle_password_stats, pattern='^password_stats$')
+    )
+    application.add_handler(
+        CallbackQueryHandler(password_handler.handle_password_revoke, pattern='^password_revoke$')
+    )
+    application.add_handler(
+        CallbackQueryHandler(password_handler.handle_password_cancel, pattern='^password_cancel$')
+    )
+    application.add_handler(
+        CallbackQueryHandler(password_handler.handle_main_menu, pattern='^main_menu$')
     )
     
     logger.info("All callback handlers registered successfully")
