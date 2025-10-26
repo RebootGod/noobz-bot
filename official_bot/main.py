@@ -26,6 +26,7 @@ from handlers.movie_upload_handler_2 import register_handlers as register_movie
 from handlers.series_upload_handler_2 import register_handlers as register_series
 from handlers.password_manager_handler import register_handlers as register_password_manager
 from handlers.help_handler import register_handlers as register_help
+from handlers.unified_input_handler import UnifiedInputHandler
 
 # Import utilities
 from utils.logger import setup_logger
@@ -287,7 +288,7 @@ def main():
     try:
         logger.info("=" * 60)
         logger.info("🚀 Starting Noobz Official Bot")
-        logger.info("🔧 VERSION: 2025-10-26-20-00-SERIES-HANDLER-FIX")  # Unique version marker
+        logger.info("🔧 VERSION: 2025-10-26-20-30-UNIFIED-INPUT-HANDLER")  # Unique version marker
         logger.info("=" * 60)
         
         # Load settings
@@ -341,7 +342,19 @@ def main():
             help_handler = register_help(application)
             logger.info("✅ Help handler registered")
             
-            logger.info("Step 7: Registering callback handlers...")
+            logger.info("Step 7: Registering unified input handler...")
+            # Create unified input handler that handles ALL text input
+            unified_handler = UnifiedInputHandler(movie_handler, movie_handler_2, series_handler)
+            application.add_handler(
+                MessageHandler(
+                    filters.TEXT & ~filters.COMMAND,
+                    unified_handler.handle_text_input
+                ),
+                group=0
+            )
+            logger.info("✅ Unified input handler registered (group 0)")
+            
+            logger.info("Step 8: Registering callback handlers...")
             register_callback_handlers(application, services, help_handler, movie_handler, movie_handler_2, series_handler, series_handler_2)
             logger.info("✅ Callback handlers registered")
             

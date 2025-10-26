@@ -459,8 +459,6 @@ def register_handlers(application, session_service, tmdb_service, noobz_api_serv
         noobz_api_service: Noobz API service
         context_service: Upload context service
     """
-    from telegram import Update
-    from telegram.ext import ContextTypes, MessageHandler, filters
     import logging
     logger = logging.getLogger(__name__)
     
@@ -482,28 +480,7 @@ def register_handlers(application, session_service, tmdb_service, noobz_api_serv
         logger.error(f"Error creating series handlers: {e}", exc_info=True)
         raise
     
-    # Create unified message handler that routes based on state
-    async def unified_series_input_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Route to appropriate handler based on awaiting state"""
-        logger.info("🎯 Unified series input handler called")
-        
-        # Check which input we're awaiting
-        if context.user_data.get('awaiting_series_tmdb_id', False):
-            logger.info("→ Routing to Series TMDB ID handler")
-            await main_handler.handle_tmdb_id_input(update, context)
-        else:
-            logger.info("→ No series input awaited, skipping")
+    logger.info("SeriesUploadHandler created successfully")
     
-    # Register SINGLE message handler in group 1 (after movie handler group 0)
-    logger.info("Registering unified series input handler in group 1...")
-    application.add_handler(
-        MessageHandler(
-            filters.TEXT & ~filters.COMMAND,
-            unified_series_input_handler
-        ),
-        group=1
-    )
-    
-    logger.info("SeriesUploadHandler registered successfully (group 1)")
-    
+    # Return handler instances (unified handler will be registered in main.py)
     return main_handler, part2_handler
