@@ -287,6 +287,27 @@ class AuthService:
             log_error('increment_upload_count', e)
             return False
     
+    def has_master_password(self) -> bool:
+        """
+        Check if a master password exists
+        
+        Returns:
+            True if master password exists, False otherwise
+        """
+        try:
+            query = """
+                SELECT COUNT(*) as count 
+                FROM passwords 
+                WHERE password_type = 'master' AND is_active = 1
+            """
+            
+            result = self.db.execute_query(query)
+            return result and result[0]['count'] > 0
+            
+        except Exception as e:
+            log_error('has_master_password', e)
+            return False
+    
     def create_initial_master_password(self, password: str) -> Dict[str, Any]:
         """
         Create the initial master password (first setup)
