@@ -2,6 +2,8 @@
 Module: Noobz API Service (Part 1)
 Purpose: HTTP client for Laravel backend API calls
 
+VERSION: 2025-10-26-12-15-FINAL
+
 Handles basic content creation:
 - Movie upload
 - Series creation
@@ -46,7 +48,8 @@ class NoobzApiService:
             'Content-Type': 'application/json'
         }
         
-        logger.info("NoobzApiService initialized")
+        # Log service initialization with version
+        logger.info("🔧 NoobzApiService initialized - VERSION: 2025-10-26-12-15-FINAL")        logger.info("NoobzApiService initialized")
 
     async def upload_movie(
         self,
