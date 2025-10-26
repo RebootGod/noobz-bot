@@ -11,7 +11,7 @@ from services.noobz_api_service_2 import NoobzApiServiceEpisodes
 from ui.messages import SeriesMessages, EpisodeMessages, ErrorMessages
 from ui.keyboards_series import SeriesUploadKeyboards, EpisodeProgressKeyboards
 from ui.formatters import SeriesFormatters, EpisodeFormatters, format_progress_bar
-from utils.parsers import BulkUploadParser
+from utils.parsers import BulkEpisodeParser
 
 logger = logging.getLogger(__name__)
 
@@ -266,7 +266,7 @@ class SeriesUploadHandlerPart2:
             )
             
             # Parse bulk input
-            parsed_episodes = BulkUploadParser.parse_bulk_upload(bulk_input)
+            parsed_episodes = BulkEpisodeParser.parse_bulk_upload(bulk_input)
             
             if not parsed_episodes['valid']:
                 # Validation errors
