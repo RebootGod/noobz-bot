@@ -7,7 +7,7 @@ import logging
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from services.noobz_api_service_2 import NoobzApiServicePart2
+from services.noobz_api_service_2 import NoobzApiServiceEpisodes
 from ui.messages import SeriesMessages, EpisodeMessages, ErrorMessages
 from ui.keyboards_series import SeriesUploadKeyboards, EpisodeProgressKeyboards
 from ui.formatters import SeriesFormatters, EpisodeFormatters, format_progress_bar
@@ -26,11 +26,13 @@ class SeriesUploadHandlerPart2:
         Args:
             main_handler: Reference to main SeriesUploadHandler instance
         """
+        from config.settings import Settings
+        
         self.main_handler = main_handler
         self.session_service = main_handler.session_service
         self.tmdb_service = main_handler.tmdb_service
         self.context_service = main_handler.context_service
-        self.noobz_api_service_2 = NoobzApiServicePart2()
+        self.noobz_api_service_2 = NoobzApiServiceEpisodes(Settings)
         logger.info("SeriesUploadHandlerPart2 initialized")
     
     async def show_episode_status(
