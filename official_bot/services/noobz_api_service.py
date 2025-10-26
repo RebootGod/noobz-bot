@@ -49,7 +49,7 @@ class NoobzApiService:
         }
         
         # Log service initialization with version
-        logger.info("🔧 NoobzApiService initialized - VERSION: 2025-10-26-12-15-FINAL")        logger.info("NoobzApiService initialized")
+        logger.info("🔧 NoobzApiService initialized - VERSION: 2025-10-26-12-15-FINAL")
 
     async def upload_movie(
         self,
