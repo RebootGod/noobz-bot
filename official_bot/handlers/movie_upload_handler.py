@@ -5,7 +5,7 @@ Handles movie upload flow with form-style UI.
 
 import logging
 from telegram import Update
-from telegram.ext import ContextTypes, CallbackQueryHandler, Application
+from telegram.ext import ContextTypes, CallbackQueryHandler
 from datetime import datetime
 
 from services.session_service import SessionService
@@ -152,16 +152,13 @@ class MovieUploadHandler:
         self, 
         update: Update, 
         context: ContextTypes.DEFAULT_TYPE
-    ) -> int:
+    ) -> None:
         """
         Handle TMDB ID input from user.
         
         Args:
             update: Telegram update object
             context: Telegram context object
-            
-        Returns:
-            Application.CONTINUE if not awaiting, None otherwise
         """
         try:
             # Check if we're expecting TMDB ID
@@ -169,7 +166,8 @@ class MovieUploadHandler:
             logger.info(f"handle_tmdb_id_input called, awaiting={awaiting}")
             
             if not awaiting:
-                return Application.CONTINUE  # Let other handlers process this
+                logger.info("Not awaiting TMDB ID, skipping")
+                return  # Skip processing, let other handlers try
             
             user = update.effective_user
             tmdb_id_str = update.message.text.strip()
@@ -280,24 +278,21 @@ class MovieUploadHandler:
         self, 
         update: Update, 
         context: ContextTypes.DEFAULT_TYPE
-    ) -> int:
+    ) -> None:
         """
         Handle embed URL input from user.
         
         Args:
             update: Telegram update object
             context: Telegram context object
-            
-        Returns:
-            Application.CONTINUE if not awaiting, None otherwise
         """
         try:
             logger.info(f"handle_embed_url_input called, awaiting={context.user_data.get('awaiting_movie_embed_url', False)}")
             
             # Check if we're expecting embed URL
             if not context.user_data.get('awaiting_movie_embed_url', False):
-                logger.info("Not awaiting embed URL, continuing to next handler")
-                return Application.CONTINUE  # Let other handlers process this
+                logger.info("Not awaiting embed URL, skipping")
+                return  # Skip processing, let other handlers try
             
             user = update.effective_user
             embed_url = update.message.text.strip()

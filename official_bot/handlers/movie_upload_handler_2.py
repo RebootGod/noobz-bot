@@ -371,12 +371,14 @@ def register_handlers(application, session_service, tmdb_service, noobz_api_serv
         logger.error(f"Error creating movie handlers: {e}", exc_info=True)
         raise
     
-    # Register message handlers for input in group 0 (default, high priority)
+    # Register message handlers for input in group 0 with block=False
+    # This allows all handlers to be checked sequentially
     logger.info("Registering message handlers in group 0...")
     application.add_handler(
         MessageHandler(
             filters.TEXT & ~filters.COMMAND,
-            main_handler.handle_tmdb_id_input
+            main_handler.handle_tmdb_id_input,
+            block=False  # Allow other handlers to also process
         ),
         group=0
     )
@@ -384,7 +386,8 @@ def register_handlers(application, session_service, tmdb_service, noobz_api_serv
     application.add_handler(
         MessageHandler(
             filters.TEXT & ~filters.COMMAND,
-            main_handler.handle_embed_url_input
+            main_handler.handle_embed_url_input,
+            block=False  # Allow other handlers to also process
         ),
         group=0
     )
@@ -392,7 +395,8 @@ def register_handlers(application, session_service, tmdb_service, noobz_api_serv
     application.add_handler(
         MessageHandler(
             filters.TEXT & ~filters.COMMAND,
-            part2_handler.handle_download_url_input
+            part2_handler.handle_download_url_input,
+            block=False  # Allow other handlers to also process
         ),
         group=0
     )
