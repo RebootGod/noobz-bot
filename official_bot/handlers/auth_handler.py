@@ -97,9 +97,6 @@ class AuthHandler:
                 )
                 return
             
-            # Update password last used
-            self.auth_service.update_password_last_used(password_data['id'])
-            
             # Clear auth state
             context.user_data['awaiting_password'] = False
             
