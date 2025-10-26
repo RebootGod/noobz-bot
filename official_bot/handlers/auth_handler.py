@@ -297,14 +297,15 @@ def register_handlers(application, auth_service: AuthService, session_service: S
     handler = AuthHandler(auth_service, session_service)
     
     # Register message handler for password input
-    # Only processes text messages (not commands)
+    # Use group 1 (lower priority) so other handlers can check first
     application.add_handler(
         MessageHandler(
             filters.TEXT & ~filters.COMMAND,
             handler.handle_password_input
-        )
+        ),
+        group=1  # Lower priority - only catches if no other handler processed it
     )
     
-    logger.info("AuthHandler registered successfully")
+    logger.info("AuthHandler registered successfully (group 1)")
     
     return handler
