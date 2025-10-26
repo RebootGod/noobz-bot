@@ -117,9 +117,9 @@ def setup_master_password(auth_service: AuthService):
         
         if result['success']:
             logger.info("✅ Master password created successfully")
-            logger.info(f"Password hint: {result['password']['password_hint']}")
+            logger.info(f"Password hint: {result['password_hint']}")
         else:
-            logger.critical(f"Failed to create master password: {result.get('message')}")
+            logger.critical(f"Failed to create master password: {result.get('error')}")
             sys.exit(1)
             
     except Exception as e:
