@@ -104,6 +104,9 @@ class NoobzApiService:
                     
                     response_data = await response.json()
                     
+                    # DEBUG: Log raw response from Laravel
+                    logger.info(f"🔍 RAW API Response - Status: {response.status}, Data: {response_data}")
+                    
                     if response.status == 409:
                         logger.warning(f"Movie already exists: {response_data.get('message')}")
                         return {
