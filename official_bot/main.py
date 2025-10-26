@@ -5,6 +5,7 @@ Upload-focused bot with SQLite authentication.
 
 import logging
 import sys
+from telegram import Update
 from telegram.ext import Application, CallbackQueryHandler, MessageHandler, filters
 
 # Import config
