@@ -34,6 +34,27 @@ from .keyboards_password import (
     format_revoke_confirmation
 )
 
+from .messages import (
+    AuthMessages,
+    MovieMessages,
+    SeriesMessages,
+    EpisodeMessages,
+    PasswordMessages,
+    HelpMessages,
+    ErrorMessages
+)
+
+from .formatters import (
+    MovieFormatters,
+    SeriesFormatters,
+    EpisodeFormatters,
+    StatsFormatters,
+    PasswordFormatters,
+    TimeFormatters,
+    URLFormatters,
+    format_progress_bar
+)
+
 __all__ = [
     # Main/Auth keyboards
     'MainMenuKeyboards',
@@ -60,5 +81,24 @@ __all__ = [
     'PasswordStatsKeyboards',
     'format_password_list',
     'format_password_stats',
-    'format_revoke_confirmation'
+    'format_revoke_confirmation',
+    
+    # Messages
+    'AuthMessages',
+    'MovieMessages',
+    'SeriesMessages',
+    'EpisodeMessages',
+    'PasswordMessages',
+    'HelpMessages',
+    'ErrorMessages',
+    
+    # Formatters
+    'MovieFormatters',
+    'SeriesFormatters',
+    'EpisodeFormatters',
+    'StatsFormatters',
+    'PasswordFormatters',
+    'TimeFormatters',
+    'URLFormatters',
+    'format_progress_bar'
 ]
