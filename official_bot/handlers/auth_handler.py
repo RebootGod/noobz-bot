@@ -158,7 +158,10 @@ class AuthHandler:
             error_message: Optional custom error message
         """
         # Send failure message
-        failure_message = AuthMessages.auth_failed(error_message)
+        if error_message:
+            failure_message = f"❌ {error_message}"
+        else:
+            failure_message = AuthMessages.auth_failed()
         
         # Get retry keyboard
         keyboard = MainMenuKeyboards.auth_retry()
