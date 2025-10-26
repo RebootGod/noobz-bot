@@ -262,6 +262,7 @@ class MovieUploadHandler:
             
             # Set state
             context.user_data['awaiting_movie_embed_url'] = True
+            logger.info(f"Set awaiting_movie_embed_url=True for user {update.effective_user.id}")
             
             # Send prompt
             prompt = MovieMessages.ask_embed_url()
@@ -286,8 +287,11 @@ class MovieUploadHandler:
             context: Telegram context object
         """
         try:
+            logger.info(f"handle_embed_url_input called, awaiting={context.user_data.get('awaiting_movie_embed_url', False)}")
+            
             # Check if we're expecting embed URL
             if not context.user_data.get('awaiting_movie_embed_url', False):
+                logger.info("Not awaiting embed URL, returning")
                 return
             
             user = update.effective_user
@@ -299,10 +303,11 @@ class MovieUploadHandler:
             except Exception as e:
                 logger.warning(f"Could not delete message: {e}")
             
-            # Validate URL
-            if not InputValidator.validate_url(embed_url):
+            # Basic URL validation only (no whitelist)
+            url_check = InputValidator.validate_url(embed_url, check_https=False)
+            if not url_check['valid']:
                 error_msg = ErrorMessages.invalid_input(
-                    "Invalid URL format.\nPlease enter a valid HTTP/HTTPS URL."
+                    f"Invalid URL format.\n{url_check['error']}"
                 )
                 await context.bot.send_message(
                     chat_id=update.effective_chat.id,
