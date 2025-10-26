@@ -4,7 +4,7 @@ Master-only features for password management (create, revoke, view stats).
 """
 
 import logging
-from telegram import Update
+from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes, MessageHandler, filters
 
 from services.session_service import SessionService
