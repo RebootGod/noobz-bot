@@ -43,6 +43,10 @@ class UnifiedInputHandler:
             logger.info(f"🎯 Unified input handler called - User: {user_id}, Text: {message_text[:50]}")
             logger.info(f"📊 User data states: {list(context.user_data.keys())}")
             
+            # EXPLICIT check for series state FIRST
+            series_state = context.user_data.get('awaiting_series_tmdb_id', False)
+            logger.info(f"🔍 EXPLICIT series state check: awaiting_series_tmdb_id={series_state}")
+            
             # Check movie upload states
             if context.user_data.get('awaiting_movie_tmdb_id', False):
                 logger.info("→ Routing to Movie TMDB ID handler")
@@ -60,7 +64,7 @@ class UnifiedInputHandler:
                 return
             
             # Check series upload states
-            if context.user_data.get('awaiting_series_tmdb_id', False):
+            if series_state:
                 logger.info("→ Routing to Series TMDB ID handler")
                 await self.series_handler.handle_tmdb_id_input(update, context)
                 return

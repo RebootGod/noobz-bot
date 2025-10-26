@@ -288,7 +288,7 @@ def main():
     try:
         logger.info("=" * 60)
         logger.info("🚀 Starting Noobz Official Bot")
-        logger.info("🔧 VERSION: 2025-10-26-21-00-DEBUG-LOGGING")  # Unique version marker
+        logger.info("🔧 VERSION: 2025-10-26-22-00-SERIES-PERSISTENCE-DEBUG")  # Unique version marker
         logger.info("=" * 60)
         
         # Load settings

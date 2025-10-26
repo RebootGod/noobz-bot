@@ -77,6 +77,15 @@ class SeriesUploadHandler:
             context.user_data['awaiting_series_tmdb_id'] = True
             logger.info(f"🎬 Series upload started - awaiting_series_tmdb_id flag set to True")
             logger.info(f"📊 Current user_data: {list(context.user_data.keys())}")
+            logger.info(f"🔍 Explicit state check: awaiting_series_tmdb_id={context.user_data.get('awaiting_series_tmdb_id')}")
+            
+            # Explicitly flush persistence to ensure state is saved immediately
+            try:
+                if context.application.persistence:
+                    await context.application.persistence.flush()
+                    logger.info("✅ Persistence flushed after setting awaiting_series_tmdb_id")
+            except Exception as e:
+                logger.warning(f"Could not flush persistence: {e}")
             
             # Send prompt
             prompt = SeriesMessages.ask_tmdb_id()
@@ -101,12 +110,19 @@ class SeriesUploadHandler:
             context: Telegram context object
         """
         try:
+            logger.info(f"🎬 handle_tmdb_id_input CALLED for series - user: {update.effective_user.id}")
+            logger.info(f"📊 User data at entry: {list(context.user_data.keys())}")
+            logger.info(f"🔍 State check: awaiting_series_tmdb_id={context.user_data.get('awaiting_series_tmdb_id')}")
+            
             # Check if we're expecting series TMDB ID
             if not context.user_data.get('awaiting_series_tmdb_id', False):
+                logger.warning("❌ Not awaiting series TMDB ID, returning")
                 return
             
             user = update.effective_user
             tmdb_id_str = update.message.text.strip()
+            
+            logger.info(f"✅ Processing series TMDB ID: {tmdb_id_str}")
             
             # Delete user's message
             try:
