@@ -65,8 +65,9 @@ class PasswordManagerHandler:
             # Get all passwords
             passwords = self.auth_service.get_all_passwords()
             
-            # Format password list
-            password_list = PasswordFormatters.format_password_list(passwords)
+            # Format password list (mark current user's password)
+            current_password_id = session.get('password_id')
+            password_list = PasswordFormatters.format_password_list(passwords, current_password_id)
             
             # Get keyboard
             keyboard = PasswordManagerKeyboards.main_menu()

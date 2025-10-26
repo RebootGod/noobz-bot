@@ -310,6 +310,36 @@ class PasswordFormatters:
             info += f"   Uploads: {uploads}\n"
         
         return info
+    
+    @staticmethod
+    def format_password_list(passwords: list, current_user_id: int = None) -> str:
+        """
+        Format list of passwords for display
+        
+        Args:
+            passwords: List of password dicts
+            current_user_id: Optional current user's password ID
+            
+        Returns:
+            Formatted password list string
+        """
+        if not passwords:
+            return "🔐 <b>Password Management</b>\n\n" \
+                   "No passwords found.\n\n" \
+                   "Use Add Password to create new passwords."
+        
+        message = "🔐 <b>Password Management</b>\n\n"
+        message += f"Active Passwords: {len(passwords)}\n\n"
+        
+        for password in passwords:
+            # Mark current user's password
+            if current_user_id and password.get('id') == current_user_id:
+                password['is_current'] = True
+            
+            message += PasswordFormatters.format_password_info(password, show_stats=True)
+            message += "\n"
+        
+        return message.strip()
 
 
 class TimeFormatters:
