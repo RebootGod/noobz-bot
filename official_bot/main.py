@@ -307,12 +307,15 @@ def main():
         
         # Setup master password
         logger.info("Checking master password...")
+
         setup_master_password(services['auth'])
-        
-        # Create application
-        logger.info("Creating Telegram application...")
-        application = Application.builder().token(settings.TELEGRAM_BOT_TOKEN).build()
-        
+
+        # Create application with PicklePersistence
+        logger.info("Creating Telegram application with PicklePersistence...")
+        from telegram.ext import PicklePersistence
+        persistence = PicklePersistence(filepath="official_bot/bot_persistence.pkl")
+        application = Application.builder().token(settings.TELEGRAM_BOT_TOKEN).persistence(persistence).build()
+
         # Register handlers
         logger.info("Registering handlers...")
         
