@@ -5,10 +5,15 @@ Exports all bot command and callback handlers.
 
 from .start_handler import StartHandler, register_handlers as register_start_handlers
 from .auth_handler import AuthHandler, register_handlers as register_auth_handlers
+from .movie_upload_handler import MovieUploadHandler
+from .movie_upload_handler_2 import MovieUploadHandlerPart2, register_handlers as register_movie_handlers
 
 __all__ = [
     'StartHandler',
     'AuthHandler',
+    'MovieUploadHandler',
+    'MovieUploadHandlerPart2',
     'register_start_handlers',
     'register_auth_handlers',
+    'register_movie_handlers',
 ]
