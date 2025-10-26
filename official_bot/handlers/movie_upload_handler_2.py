@@ -371,32 +371,30 @@ def register_handlers(application, session_service, tmdb_service, noobz_api_serv
         logger.error(f"Error creating movie handlers: {e}", exc_info=True)
         raise
     
-    # Register message handlers for input in group 0 with block=False
-    # This allows all handlers to be checked sequentially
-    logger.info("Registering message handlers in group 0...")
-    application.add_handler(
-        MessageHandler(
-            filters.TEXT & ~filters.COMMAND,
-            main_handler.handle_tmdb_id_input,
-            block=False  # Allow other handlers to also process
-        ),
-        group=0
-    )
+    # Create unified message handler that routes based on state
+    async def unified_movie_input_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Route to appropriate handler based on awaiting state"""
+        logger.info("🎯 Unified movie input handler called")
+        
+        # Check which input we're awaiting
+        if context.user_data.get('awaiting_movie_tmdb_id', False):
+            logger.info("→ Routing to TMDB ID handler")
+            await main_handler.handle_tmdb_id_input(update, context)
+        elif context.user_data.get('awaiting_movie_embed_url', False):
+            logger.info("→ Routing to Embed URL handler")
+            await main_handler.handle_embed_url_input(update, context)
+        elif context.user_data.get('awaiting_movie_download_url', False):
+            logger.info("→ Routing to Download URL handler")
+            await part2_handler.handle_download_url_input(update, context)
+        else:
+            logger.info("→ No movie input awaited, skipping")
     
+    # Register SINGLE message handler in group 0
+    logger.info("Registering unified movie input handler in group 0...")
     application.add_handler(
         MessageHandler(
             filters.TEXT & ~filters.COMMAND,
-            main_handler.handle_embed_url_input,
-            block=False  # Allow other handlers to also process
-        ),
-        group=0
-    )
-    
-    application.add_handler(
-        MessageHandler(
-            filters.TEXT & ~filters.COMMAND,
-            part2_handler.handle_download_url_input,
-            block=False  # Allow other handlers to also process
+            unified_movie_input_handler
         ),
         group=0
     )
@@ -404,3 +402,4 @@ def register_handlers(application, session_service, tmdb_service, noobz_api_serv
     logger.info("MovieUploadHandler registered successfully (group 0)")
     
     return main_handler, part2_handler
+
