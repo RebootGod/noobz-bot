@@ -195,8 +195,9 @@ class PasswordManagerHandler:
                 logger.warning(f"Could not delete message: {e}")
             
             # Validate password
-            if not InputValidator.validate_password_format(password):
-                error_msg = PasswordMessages.password_weak()
+            validation_result = InputValidator.validate_password(password)
+            if not validation_result['valid']:
+                error_msg = f"❌ {validation_result['error']}"
                 await context.bot.send_message(
                     chat_id=update.effective_chat.id,
                     text=error_msg,

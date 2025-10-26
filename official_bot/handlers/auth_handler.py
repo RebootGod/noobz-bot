@@ -61,11 +61,12 @@ class AuthHandler:
             logger.info(f"User {user.id} attempting authentication")
             
             # Validate password format
-            if not InputValidator.validate_password_format(password):
+            validation_result = InputValidator.validate_password(password)
+            if not validation_result['valid']:
                 await self._handle_auth_failure(
                     update, 
                     context,
-                    "Invalid password format. Password must be at least 8 characters."
+                    validation_result['error']
                 )
                 return
             
