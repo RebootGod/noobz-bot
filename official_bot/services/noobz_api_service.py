@@ -111,7 +111,8 @@ class NoobzApiService:
                             'message': response_data.get('message', 'Movie already exists')
                         }
                     
-                    if response.status != 201:
+                    # Accept both 200 and 201 as success
+                    if response.status not in [200, 201]:
                         error_msg = response_data.get('message', 'Unknown error')
                         logger.error(f"Failed to upload movie: {error_msg}")
                         return {
@@ -120,11 +121,12 @@ class NoobzApiService:
                             'message': error_msg
                         }
                     
-                    logger.info(f"Movie uploaded successfully: {response_data.get('data', {}).get('title')}")
+                    logger.info(f"Movie uploaded successfully: {response_data.get('data', {}).get('title', 'Unknown')}")
                     
                     return {
                         'success': True,
-                        'data': response_data.get('data', {})
+                        'data': response_data.get('data', {}),
+                        'message': response_data.get('message', 'Upload successful')
                     }
         
         except aiohttp.ClientTimeout:
