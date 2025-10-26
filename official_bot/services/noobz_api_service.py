@@ -85,13 +85,14 @@ class NoobzApiService:
             
             payload = {
                 'tmdb_id': tmdb_id,
-                'embed_url': embed_url
+                'embed_url': embed_url,
+                'status': 'published'  # Auto-publish immediately
             }
             
             if download_url:
                 payload['download_url'] = download_url
             
-            logger.info(f"Uploading movie: TMDB ID {tmdb_id}")
+            logger.info(f"Uploading movie: TMDB ID {tmdb_id} (auto-publish)")
             
             async with aiohttp.ClientSession() as session:
                 async with session.post(
