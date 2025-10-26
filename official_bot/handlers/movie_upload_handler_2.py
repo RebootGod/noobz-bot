@@ -248,7 +248,7 @@ class MovieUploadHandlerPart2:
                 
                 success_msg = MovieMessages.upload_success(movie_data)
                 
-                keyboard = MovieUploadKeyboards.post_upload_actions()
+                keyboard = MainMenuKeyboards.back_and_home()
                 
                 await query.edit_message_text(
                     success_msg,
