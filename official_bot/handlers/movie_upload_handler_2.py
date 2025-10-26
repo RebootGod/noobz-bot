@@ -238,13 +238,15 @@ class MovieUploadHandlerPart2:
             logger.info(f"API Response: success={result.get('success')}, message={result.get('message')}, data_keys={list(result.get('data', {}).keys())}")
             
             if result['success']:
-                # Upload successful
-                success_msg = MovieMessages.upload_success(
-                    state['title'],
-                    state['year'],
-                    state['tmdb_id'],
-                    URLFormatters.extract_domain(state['embed_url'])
-                )
+                # Upload successful - prepare movie data dict
+                movie_data = {
+                    'title': state['title'],
+                    'year': state['year'],
+                    'tmdb_id': state['tmdb_id'],
+                    'embed_url': state['embed_url']
+                }
+                
+                success_msg = MovieMessages.upload_success(movie_data)
                 
                 keyboard = MovieUploadKeyboards.post_upload_actions()
                 
