@@ -237,49 +237,42 @@ class MovieUploadHandlerPart2:
             # Debug: Log actual API response
             logger.info(f"API Response: success={result.get('success')}, message={result.get('message')}, data_keys={list(result.get('data', {}).keys())}")
             
-            if result['success']:
-                # Upload successful - prepare movie data dict
+            # Deep checking: avoid showing both error and success for ambiguous API responses
+            error_msg = result.get('message', '') or ''
+            is_success = result.get('success', False)
+            # If API returns ambiguous message but status is success, treat as success
+            if is_success or (
+                'queued successfully' in error_msg.lower() and not is_success
+            ):
+                # Treat as success if message contains 'queued successfully' (deep validation)
                 movie_data = {
                     'title': state['title'],
                     'year': state['year'],
                     'tmdb_id': state['tmdb_id'],
                     'embed_url': state['embed_url']
                 }
-                
                 success_msg = MovieMessages.upload_success(movie_data)
-                
                 keyboard = MainMenuKeyboards.back_and_home()
-                
                 await query.edit_message_text(
                     success_msg,
                     reply_markup=keyboard,
                     parse_mode='HTML'
                 )
-                
-                # Clear upload state
                 context.user_data.pop('movie_upload', None)
-                
                 logger.info(f"User {user.id} uploaded movie: {state['title']} (TMDB: {state['tmdb_id']})")
-                
             else:
                 # Upload failed
-                error_msg = result.get('message', 'Unknown error')
-                
                 # Check if movie already exists
                 if 'already exists' in error_msg.lower() or 'duplicate' in error_msg.lower():
                     fail_msg = MovieMessages.movie_exists()
                 else:
-                    fail_msg = MovieMessages.upload_error(error_msg)
-                
-                # Show back button
+                    fail_msg = MovieMessages.upload_error(error_msg or 'Unknown error')
                 keyboard = MainMenuKeyboards.back_and_home()
-                
                 await query.edit_message_text(
                     fail_msg,
                     reply_markup=keyboard,
                     parse_mode='HTML'
                 )
-                
                 logger.warning(
                     f"User {user.id} movie upload failed: {error_msg} "
                     f"(TMDB: {state['tmdb_id']})"
