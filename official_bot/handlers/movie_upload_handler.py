@@ -157,11 +157,15 @@ class MovieUploadHandler:
         """
         try:
             # Check if we're expecting TMDB ID
-            if not context.user_data.get('awaiting_movie_tmdb_id', False):
+            awaiting = context.user_data.get('awaiting_movie_tmdb_id', False)
+            logger.info(f"handle_tmdb_id_input called, awaiting={awaiting}")
+            
+            if not awaiting:
                 return
             
             user = update.effective_user
             tmdb_id_str = update.message.text.strip()
+            logger.info(f"Processing TMDB ID input: {tmdb_id_str}")
             
             # Delete user's message
             try:
