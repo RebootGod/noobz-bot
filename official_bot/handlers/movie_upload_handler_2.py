@@ -262,12 +262,12 @@ class MovieUploadHandlerPart2:
                 
                 # Check if movie already exists
                 if 'already exists' in error_msg.lower() or 'duplicate' in error_msg.lower():
-                    fail_msg = MovieMessages.movie_exists(state['title'])
+                    fail_msg = MovieMessages.movie_exists()
                 else:
                     fail_msg = MovieMessages.upload_error(error_msg)
                 
-                # Show back to menu button
-                keyboard = MainMenuKeyboards.back_to_menu()
+                # Show back button
+                keyboard = MainMenuKeyboards.back_and_home()
                 
                 await query.edit_message_text(
                     fail_msg,
@@ -284,7 +284,7 @@ class MovieUploadHandlerPart2:
             logger.error(f"Error in execute_upload: {e}", exc_info=True)
             
             error_msg = ErrorMessages.api_error()
-            keyboard = MainMenuKeyboards.back_to_menu()
+            keyboard = MainMenuKeyboards.back_and_home()
             
             try:
                 await query.edit_message_text(
