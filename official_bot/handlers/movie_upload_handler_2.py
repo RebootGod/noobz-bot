@@ -9,6 +9,7 @@ from telegram.ext import ContextTypes, MessageHandler, filters
 
 from ui.messages import MovieMessages, ErrorMessages
 from ui.keyboards_movie import MovieUploadKeyboards, format_movie_state_summary
+from ui.keyboards import MainMenuKeyboards
 from ui.formatters import URLFormatters
 from utils.validators import InputValidator
 
