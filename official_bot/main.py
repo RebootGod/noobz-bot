@@ -293,6 +293,7 @@ def main():
     try:
         logger.info("=" * 60)
         logger.info("🚀 Starting Noobz Official Bot")
+        logger.info("🔧 VERSION: DEBUG-2025-10-26-17-50")  # Unique version marker
         logger.info("=" * 60)
         
         # Load settings
@@ -321,18 +322,34 @@ def main():
         logger.info("Registering handlers...")
         
         # Register command and message handlers
-        register_start(application, services['session'])
-        register_auth(application, services['auth'], services['session'])
-        movie_handler, movie_handler_2 = register_movie(application, services['session'], services['tmdb'], services['noobz_api'])
-        logger.info(f"✅ Movie handlers initialized: {movie_handler is not None}, {movie_handler_2 is not None}")
-        register_password_manager(application, services['session'], services['auth'])
-        
-        # Register help handler
-        help_handler = register_help(application)
-        
-        # Register callback handlers
-        logger.info("Registering callback handlers with movie handlers...")
-        register_callback_handlers(application, services, help_handler, movie_handler, movie_handler_2)
+        try:
+            logger.info("Step 1: Registering start handler...")
+            register_start(application, services['session'])
+            logger.info("✅ Start handler registered")
+            
+            logger.info("Step 2: Registering auth handler...")
+            register_auth(application, services['auth'], services['session'])
+            logger.info("✅ Auth handler registered")
+            
+            logger.info("Step 3: Registering movie handler...")
+            movie_handler, movie_handler_2 = register_movie(application, services['session'], services['tmdb'], services['noobz_api'])
+            logger.info(f"✅ Movie handlers initialized: {movie_handler is not None}, {movie_handler_2 is not None}")
+            
+            logger.info("Step 4: Registering password manager...")
+            register_password_manager(application, services['session'], services['auth'])
+            logger.info("✅ Password manager registered")
+            
+            logger.info("Step 5: Registering help handler...")
+            help_handler = register_help(application)
+            logger.info("✅ Help handler registered")
+            
+            logger.info("Step 6: Registering callback handlers...")
+            register_callback_handlers(application, services, help_handler, movie_handler, movie_handler_2)
+            logger.info("✅ Callback handlers registered")
+            
+        except Exception as e:
+            logger.critical(f"HANDLER REGISTRATION FAILED AT SOME STEP: {e}", exc_info=True)
+            raise
         
         logger.info("✅ All handlers registered")
         
