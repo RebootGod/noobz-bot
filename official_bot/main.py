@@ -188,7 +188,10 @@ def register_callback_handlers(application: Application, services: dict):
         CallbackQueryHandler(auth_handler.handle_logout, pattern='^logout$')
     )
     
-    # Movie upload handlers
+    # Movie upload handlers (main menu button uses menu_movie)
+    application.add_handler(
+        CallbackQueryHandler(movie_handler.start_movie_upload, pattern='^menu_movie$')
+    )
     application.add_handler(
         CallbackQueryHandler(movie_handler.start_movie_upload, pattern='^upload_movie$')
     )
@@ -214,7 +217,10 @@ def register_callback_handlers(application: Application, services: dict):
         CallbackQueryHandler(movie_handler.start_movie_upload, pattern='^movie_upload_another$')
     )
     
-    # Series upload handlers
+    # Series upload handlers (main menu button uses menu_series)
+    application.add_handler(
+        CallbackQueryHandler(series_handler.start_series_upload, pattern='^menu_series$')
+    )
     application.add_handler(
         CallbackQueryHandler(series_handler.start_series_upload, pattern='^upload_series$')
     )
@@ -234,7 +240,10 @@ def register_callback_handlers(application: Application, services: dict):
         CallbackQueryHandler(series_handler_2.execute_bulk_upload, pattern='^confirm_bulk_upload_')
     )
     
-    # Password manager handlers
+    # Password manager handlers (main menu button uses menu_password_manager)
+    application.add_handler(
+        CallbackQueryHandler(password_handler.show_password_manager, pattern='^menu_password_manager$')
+    )
     application.add_handler(
         CallbackQueryHandler(password_handler.show_password_manager, pattern='^password_manager$')
     )
