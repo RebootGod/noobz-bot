@@ -59,6 +59,8 @@ class MovieUploadHandler:
             context: Telegram context object
         """
         try:
+            logger.info(f"start_movie_upload called by user {update.effective_user.id}")
+            
             query = update.callback_query
             await query.answer()
             
@@ -66,6 +68,8 @@ class MovieUploadHandler:
             
             # Check session
             session = self.session_service.get_active_session(user.id)
+            logger.info(f"Session check: {session is not None}")
+            
             if not session:
                 await query.edit_message_text(
                     "❌ Session expired. Use /start to login again."
