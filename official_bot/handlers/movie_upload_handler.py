@@ -5,7 +5,7 @@ Handles movie upload flow with form-style UI.
 
 import logging
 from telegram import Update
-from telegram.ext import ContextTypes, CallbackQueryHandler
+from telegram.ext import ContextTypes, CallbackQueryHandler, Application
 from datetime import datetime
 
 from services.session_service import SessionService
@@ -152,13 +152,16 @@ class MovieUploadHandler:
         self, 
         update: Update, 
         context: ContextTypes.DEFAULT_TYPE
-    ) -> None:
+    ) -> int:
         """
         Handle TMDB ID input from user.
         
         Args:
             update: Telegram update object
             context: Telegram context object
+            
+        Returns:
+            Application.CONTINUE if not awaiting, None otherwise
         """
         try:
             # Check if we're expecting TMDB ID
@@ -166,7 +169,7 @@ class MovieUploadHandler:
             logger.info(f"handle_tmdb_id_input called, awaiting={awaiting}")
             
             if not awaiting:
-                return
+                return Application.CONTINUE  # Let other handlers process this
             
             user = update.effective_user
             tmdb_id_str = update.message.text.strip()
@@ -273,26 +276,28 @@ class MovieUploadHandler:
         except Exception as e:
             logger.error(f"Error in prompt_embed_url: {e}", exc_info=True)
             await update.callback_query.answer("❌ Error")
-    
     async def handle_embed_url_input(
         self, 
         update: Update, 
         context: ContextTypes.DEFAULT_TYPE
-    ) -> None:
+    ) -> int:
         """
         Handle embed URL input from user.
         
         Args:
             update: Telegram update object
             context: Telegram context object
+            
+        Returns:
+            Application.CONTINUE if not awaiting, None otherwise
         """
         try:
             logger.info(f"handle_embed_url_input called, awaiting={context.user_data.get('awaiting_movie_embed_url', False)}")
             
             # Check if we're expecting embed URL
             if not context.user_data.get('awaiting_movie_embed_url', False):
-                logger.info("Not awaiting embed URL, returning")
-                return
+                logger.info("Not awaiting embed URL, continuing to next handler")
+                return Application.CONTINUE  # Let other handlers process this
             
             user = update.effective_user
             embed_url = update.message.text.strip()
