@@ -9,7 +9,7 @@ from telegram.ext import Application, CallbackQueryHandler, MessageHandler, filt
 
 # Import config
 from config.settings import Settings
-from config.database import Database
+from config.database import Database, init_database
 
 # Import services
 from services.auth_service import AuthService
@@ -39,8 +39,12 @@ def initialize_database() -> Database:
         Database instance
     """
     try:
+        # Initialize database schema
+        if not init_database():
+            raise Exception("Database initialization failed")
+        
+        # Return database instance
         db = Database()
-        db.create_tables()
         logger.info("Database initialized successfully")
         return db
     except Exception as e:
