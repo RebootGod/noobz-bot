@@ -1,0 +1,20 @@
+[Unit]
+Description=Noobz Official Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/noobz-bot/official_bot
+Environment="PATH=/root/noobz-bot/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ExecStart=/root/noobz-bot/venv/bin/python3 /root/noobz-bot/official_bot/main.py
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=noobz-official-bot
+
+[Install]
+WantedBy=multi-user.target

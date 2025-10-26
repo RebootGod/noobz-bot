@@ -116,23 +116,49 @@ Edit `.env` with your credentials:
 - `TELEGRAM_BOT_TOKEN` - Get from [@BotFather](https://t.me/BotFather)
 - `NOOBZ_BOT_TOKEN` - Get from Laravel backend
 - `TMDB_API_KEY` - Get from [TMDB](https://www.themoviedb.org/settings/api)
+- `INITIAL_MASTER_PASSWORD` - Your master password (will be hashed on first run)
 
-### 3. Initialize Database
-
-```bash
-python -c "from config.database import init_database; init_database()"
-```
-
-### 4. Create Master Password
-
-```bash
-python -c "from services.auth_service import AuthService; AuthService().create_initial_master_password('your_secure_password')"
-```
-
-### 5. Run Bot
+### 3. Run Bot (Manual)
 
 ```bash
 python main.py
+```
+
+Database and master password will be created automatically on first run.
+
+## 🔧 Production Setup (Systemd Service)
+
+**Recommended for VPS deployment** - Bot runs as a background service and auto-restarts on crash or reboot.
+
+### Quick Install
+
+```bash
+cd /root/noobz-bot/official_bot
+chmod +x install_service.sh
+sudo ./install_service.sh
+```
+
+### Manual Install
+
+See [SYSTEMD_SETUP.md](SYSTEMD_SETUP.md) for detailed instructions.
+
+### Manage Service
+
+```bash
+# Restart after git pull (like existing userbot)
+cd /root/noobz-bot
+git pull origin main
+sudo systemctl restart noobz-official-bot
+
+# Check status
+sudo systemctl status noobz-official-bot
+
+# View logs
+sudo journalctl -u noobz-official-bot -f
+
+# Stop/Start
+sudo systemctl stop noobz-official-bot
+sudo systemctl start noobz-official-bot
 ```
 
 ## 📖 Usage Guide
