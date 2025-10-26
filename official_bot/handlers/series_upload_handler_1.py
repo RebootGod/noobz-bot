@@ -75,6 +75,8 @@ class SeriesUploadHandler:
             
             # Set state to awaiting TMDB ID
             context.user_data['awaiting_series_tmdb_id'] = True
+            logger.info(f"🎬 Series upload started - awaiting_series_tmdb_id flag set to True")
+            logger.info(f"📊 Current user_data: {list(context.user_data.keys())}")
             
             # Send prompt
             prompt = SeriesMessages.ask_tmdb_id()

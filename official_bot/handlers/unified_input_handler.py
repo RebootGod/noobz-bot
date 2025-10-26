@@ -37,7 +37,11 @@ class UnifiedInputHandler:
             context: Telegram context object
         """
         try:
-            logger.info("🎯 Unified input handler called")
+            user_id = update.effective_user.id if update.effective_user else "Unknown"
+            message_text = update.message.text if update.message else "No text"
+            
+            logger.info(f"🎯 Unified input handler called - User: {user_id}, Text: {message_text[:50]}")
+            logger.info(f"📊 User data states: {list(context.user_data.keys())}")
             
             # Check movie upload states
             if context.user_data.get('awaiting_movie_tmdb_id', False):
@@ -62,7 +66,7 @@ class UnifiedInputHandler:
                 return
             
             # No state matched
-            logger.info("→ No input awaited, ignoring")
+            logger.warning(f"→ No input awaited, ignoring. User data: {context.user_data}")
             
         except Exception as e:
             logger.error(f"Error in unified input handler: {e}", exc_info=True)
