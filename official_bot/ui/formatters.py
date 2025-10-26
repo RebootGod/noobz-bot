@@ -351,6 +351,40 @@ class TimeFormatters:
             return timestamp
     
     @staticmethod
+    def format_time_remaining(timestamp: str) -> str:
+        """
+        Format timestamp as time remaining (e.g., "23 hours", "5 minutes")
+        
+        Args:
+            timestamp: ISO format timestamp string (future time)
+            
+        Returns:
+            Time remaining string
+        """
+        try:
+            dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+            now = datetime.now(dt.tzinfo) if dt.tzinfo else datetime.now()
+            delta = dt - now  # Future - now = remaining
+            
+            # If expired
+            if delta.total_seconds() <= 0:
+                return "Expired"
+            
+            # Calculate remaining time
+            if delta.days > 0:
+                return f"{delta.days} day{'s' if delta.days > 1 else ''}"
+            elif delta.seconds > 3600:
+                hours = delta.seconds // 3600
+                return f"{hours} hour{'s' if hours > 1 else ''}"
+            elif delta.seconds > 60:
+                minutes = delta.seconds // 60
+                return f"{minutes} minute{'s' if minutes > 1 else ''}"
+            else:
+                return "Less than 1 minute"
+        except:
+            return timestamp
+    
+    @staticmethod
     def format_date(timestamp: str) -> str:
         """
         Format timestamp as date string

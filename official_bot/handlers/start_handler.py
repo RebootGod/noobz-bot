@@ -108,7 +108,7 @@ class StartHandler:
         if isinstance(expires_at, str):
             expires_at = datetime.fromisoformat(expires_at)
         
-        time_remaining = TimeFormatters.format_relative_time(expires_at.isoformat())
+        time_remaining = TimeFormatters.format_time_remaining(expires_at.isoformat())
         
         # Build greeting message
         greeting = f"👋 Welcome back"
@@ -173,7 +173,7 @@ class StartHandler:
             if isinstance(expires_at, str):
                 expires_at = datetime.fromisoformat(expires_at)
             
-            time_remaining = TimeFormatters.format_relative_time(expires_at.isoformat())
+            time_remaining = TimeFormatters.format_time_remaining(expires_at.isoformat())
             
             greeting = f"🏠 <b>Main Menu</b>\n\n⏰ Session expires in: {time_remaining}"
             
@@ -190,6 +190,62 @@ class StartHandler:
         except Exception as e:
             logger.error(f"Error in handle_home: {e}", exc_info=True)
             await update.callback_query.answer("❌ Error returning to home")
+    
+    async def handle_stats(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        """Handle My Stats button"""
+        query = update.callback_query
+        await query.answer()
+        
+        user = update.effective_user
+        
+        # Check session
+        session = self.session_service.get_active_session(user.id)
+        if not session:
+            await query.edit_message_text(
+                "⏰ Your session has expired.\n\nPlease use /start to authenticate again."
+            )
+            return
+        
+        # TODO: Implement stats display
+        await query.edit_message_text(
+            "📊 <b>My Stats</b>\n\n"
+            "🚧 This feature is coming soon!\n\n"
+            "You'll be able to see:\n"
+            "• Total uploads\n"
+            "• Movies uploaded\n"
+            "• Series created\n"
+            "• Episodes uploaded\n"
+            "• Recent activity",
+            parse_mode='HTML',
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("🏠 Main Menu", callback_data="home")
+            ]])
+        )
+    
+    async def handle_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        """Handle Help button"""
+        query = update.callback_query
+        await query.answer()
+        
+        user = update.effective_user
+        
+        # Check session
+        session = self.session_service.get_active_session(user.id)
+        if not session:
+            await query.edit_message_text(
+                "⏰ Your session has expired.\n\nPlease use /start to authenticate again."
+            )
+            return
+        
+        # Show help menu
+        from ui.keyboards_main_auth import HelpKeyboards
+        
+        await query.edit_message_text(
+            "❓ <b>Help & Information</b>\n\n"
+            "Select a topic to learn more:",
+            parse_mode='HTML',
+            reply_markup=HelpKeyboards.help_menu()
+        )
 
 
 def register_handlers(application, session_service: SessionService):

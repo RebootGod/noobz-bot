@@ -169,6 +169,14 @@ def register_callback_handlers(application: Application, services: dict):
         CallbackQueryHandler(start_handler.handle_home, pattern='^home$')
     )
     
+    # Stats and Help buttons
+    application.add_handler(
+        CallbackQueryHandler(start_handler.handle_stats, pattern='^menu_stats$')
+    )
+    application.add_handler(
+        CallbackQueryHandler(start_handler.handle_help, pattern='^menu_help$')
+    )
+    
     # Auth handlers
     application.add_handler(
         CallbackQueryHandler(auth_handler.handle_retry_auth, pattern='^retry_auth$')
