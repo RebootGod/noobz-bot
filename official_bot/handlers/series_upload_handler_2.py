@@ -161,8 +161,7 @@ class SeriesUploadHandlerPart2:
             season_number: Season number
         """
         season_context = self.context_service.get_context(
-            query.from_user.id, 
-            'season'
+            query.from_user.id
         )
         series_title = season_context.get('series_title', 'Series')
         
@@ -199,8 +198,7 @@ class SeriesUploadHandlerPart2:
             
             # Get season context
             season_context = self.context_service.get_context(
-                update.effective_user.id, 
-                'season'
+                update.effective_user.id
             )
             
             series_title = season_context.get('series_title', 'Series')
