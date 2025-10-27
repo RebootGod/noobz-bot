@@ -85,7 +85,7 @@ class NoobzApiServiceEpisodes:
             }
         """
         try:
-            url = f"{self.api_url}/bot/series/{tmdb_id}/episodes"
+            url = f"{self.api_url}/api/bot/series/{tmdb_id}/episodes"
             
             payload = {
                 'season_number': season_number,
@@ -99,7 +99,8 @@ class NoobzApiServiceEpisodes:
             if title:
                 payload['title'] = title
             
-            logger.info(f"Creating episode: S{season_number:02d}E{episode_number:02d}")
+            logger.info(f"Creating episode: Series {tmdb_id}, S{season_number}E{episode_number}")
+            logger.info(f"Request URL: {url}")
             
             async with aiohttp.ClientSession() as session:
                 async with session.post(
@@ -201,10 +202,11 @@ class NoobzApiServiceEpisodes:
             }
         """
         try:
-            url = f"{self.api_url}/bot/series/{tmdb_id}/episodes-status"
+            url = f"{self.api_url}/api/bot/series/{tmdb_id}/episodes-status"
             params = {'season': season_number}
             
             logger.info(f"Checking episode status: Series {tmdb_id}, Season {season_number}")
+            logger.info(f"Request URL: {url}")
             
             async with aiohttp.ClientSession() as session:
                 async with session.get(
@@ -293,7 +295,7 @@ class NoobzApiServiceEpisodes:
             }
         """
         try:
-            url = f"{self.api_url}/bot/episodes/{episode_id}"
+            url = f"{self.api_url}/api/bot/episodes/{episode_id}"
             
             payload = {'embed_url': embed_url}
             
@@ -301,6 +303,7 @@ class NoobzApiServiceEpisodes:
                 payload['download_url'] = download_url
             
             logger.info(f"Updating episode URLs: Episode ID {episode_id}")
+            logger.info(f"Request URL: {url}")
             
             async with aiohttp.ClientSession() as session:
                 async with session.put(

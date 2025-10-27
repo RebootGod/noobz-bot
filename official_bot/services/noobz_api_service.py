@@ -176,11 +176,12 @@ class NoobzApiService:
             }
         """
         try:
-            url = f"{self.api_url}/bot/series"
+            url = f"{self.api_url}/api/bot/series"
             
             payload = {'tmdb_id': tmdb_id}
             
             logger.info(f"Creating series: TMDB ID {tmdb_id}")
+            logger.info(f"Request URL: {url}")
             
             async with aiohttp.ClientSession() as session:
                 async with session.post(
@@ -265,11 +266,12 @@ class NoobzApiService:
             }
         """
         try:
-            url = f"{self.api_url}/bot/series/{tmdb_id}/seasons"
+            url = f"{self.api_url}/api/bot/series/{tmdb_id}/seasons"
             
             payload = {'season_number': season_number}
             
             logger.info(f"Creating season: Series {tmdb_id}, Season {season_number}")
+            logger.info(f"Request URL: {url}")
             
             async with aiohttp.ClientSession() as session:
                 async with session.post(
