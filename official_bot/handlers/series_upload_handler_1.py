@@ -199,12 +199,12 @@ class SeriesUploadHandler:
             # Success - save to context service
             series_id = result.get('series_id')
             
-            self.context_service.save_context(
+            self.context_service.create_context(
                 telegram_user_id=user.id,
                 context_type='series',
                 series_tmdb_id=tmdb_id,
                 series_title=series_data['title'],
-                series_id=series_id
+                data={'series_id': series_id}
             )
             
             # Show success and season selection
@@ -273,7 +273,7 @@ class SeriesUploadHandler:
             season_number = int(callback_parts[3])
             
             # Get series context
-            series_context = self.context_service.get_context(user.id, 'series')
+            series_context = self.context_service.get_context(user.id)
             
             if not series_context or series_context['series_tmdb_id'] != tmdb_id:
                 # No context or mismatch - fetch series data again
@@ -289,16 +289,18 @@ class SeriesUploadHandler:
                 series_id = None
             else:
                 series_title = series_context['series_title']
-                series_id = series_context.get('series_id')
+                # Get series_id from data dict
+                context_data = series_context.get('data', {}) or {}
+                series_id = context_data.get('series_id')
             
             # Update context with season info
-            self.context_service.save_context(
+            self.context_service.create_context(
                 telegram_user_id=user.id,
                 context_type='season',
                 series_tmdb_id=tmdb_id,
                 series_title=series_title,
                 season_number=season_number,
-                series_id=series_id
+                data={'series_id': series_id} if series_id else None
             )
             
             # Show checking status message
