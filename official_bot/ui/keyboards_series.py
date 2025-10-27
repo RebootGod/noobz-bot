@@ -51,7 +51,7 @@ class SeriesUploadKeyboards:
         return InlineKeyboardMarkup(keyboard)
 
     @staticmethod
-    def season_selection(seasons: List[Dict[str, Any]], max_per_row: int = 2) -> InlineKeyboardMarkup:
+    def season_selection(seasons: List[Dict[str, Any]], tmdb_id: int, max_per_row: int = 2) -> InlineKeyboardMarkup:
         """
         Build season selection keyboard
         
@@ -60,6 +60,7 @@ class SeriesUploadKeyboards:
                 - season_number: int
                 - episode_count: int
                 - name: str
+            tmdb_id: TMDB series ID (for callback data)
             max_per_row: Maximum buttons per row (default: 2)
                 
         Returns:
@@ -79,7 +80,7 @@ class SeriesUploadKeyboards:
             button_text = f"{season_num}️⃣ Season {season_num} ({episode_count} ep)"
             button = InlineKeyboardButton(
                 button_text, 
-                callback_data=f"series_season_{season_num}"
+                callback_data=f"series_season_{tmdb_id}_{season_num}"
             )
             
             current_row.append(button)
