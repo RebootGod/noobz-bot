@@ -149,6 +149,32 @@ class SeriesUploadKeyboards:
         return InlineKeyboardMarkup(keyboard)
 
     @staticmethod
+    def manual_mode_entry(tmdb_id: int, season_number: int) -> InlineKeyboardMarkup:
+        """
+        Build manual mode entry keyboard with context
+        
+        Args:
+            tmdb_id: TMDB series ID
+            season_number: Season number
+            
+        Returns:
+            InlineKeyboardMarkup with manual mode entry button
+        """
+        keyboard = [
+            [
+                InlineKeyboardButton(
+                    "✍️ Enter Manual Mode", 
+                    callback_data=f"manual_entry_{tmdb_id}_{season_number}"
+                )
+            ],
+            [
+                InlineKeyboardButton("🔙 Back to Seasons", callback_data="series_back_to_seasons")
+            ]
+        ]
+        
+        return InlineKeyboardMarkup(keyboard)
+
+    @staticmethod
     def bulk_upload_actions() -> InlineKeyboardMarkup:
         """
         Build bulk upload input actions keyboard
