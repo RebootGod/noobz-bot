@@ -140,9 +140,10 @@ class TmdbService:
         try:
             import aiohttp
             
-            url = f"{self.api_url}/bot/tmdb/series/{tmdb_id}"
+            url = f"{self.api_url}/api/bot/tmdb/series/{tmdb_id}"
             
             logger.info(f"Fetching series data: TMDB ID {tmdb_id}")
+            logger.info(f"Request URL: {url}")
             
             async with aiohttp.ClientSession() as session:
                 async with session.get(url, headers=self.headers, timeout=30) as response:
@@ -214,9 +215,10 @@ class TmdbService:
         try:
             import aiohttp
             
-            url = f"{self.api_url}/bot/tmdb/series/{tmdb_id}/season/{season_number}"
+            url = f"{self.api_url}/api/bot/tmdb/series/{tmdb_id}/season/{season_number}"
             
             logger.info(f"Fetching season data: TMDB ID {tmdb_id}, Season {season_number}")
+            logger.info(f"Request URL: {url}")
             
             async with aiohttp.ClientSession() as session:
                 async with session.get(url, headers=self.headers, timeout=30) as response:

@@ -172,36 +172,59 @@ class SeriesMessages:
         return "⏳ Fetching series info from TMDB..."
     
     @staticmethod
+    def tmdb_fetch_error(tmdb_id: int) -> str:
+        """TMDB fetch failed for series"""
+        return (
+            f"❌ Failed to fetch series data from TMDB.\n\n"
+            f"TMDB ID: {tmdb_id}\n\n"
+            f"Possible reasons:\n"
+            f"• Invalid TMDB ID\n"
+            f"• Series not found\n"
+            f"• TMDB API error\n\n"
+            f"Please try again with a valid TMDB ID."
+        )
+    
+    @staticmethod
     def series_creating() -> str:
         """Creating series in database"""
         return "⏳ Creating series in database..."
     
     @staticmethod
-    def series_created(series_data: Dict[str, Any]) -> str:
+    def series_created(title: str) -> str:
         """Series created successfully"""
-        title = series_data.get('title', 'Unknown')
-        seasons = series_data.get('number_of_seasons', 0)
-        episodes = series_data.get('number_of_episodes', 0)
-        
         return (
             f"✅ Series created!\n\n"
-            f"📺 {title}\n"
-            f"🔢 {seasons} Seasons • {episodes} Episodes\n\n"
+            f"📺 {title}\n\n"
             f"Select season to upload:"
         )
     
     @staticmethod
-    def series_exists() -> str:
-        """Series already exists"""
+    def series_create_error(error_message: str) -> str:
+        """Series creation failed"""
         return (
-            "⚠️ This series already exists in the database.\n\n"
-            "You can still add episodes to existing seasons."
+            f"❌ Failed to create series!\n\n"
+            f"Error: {error_message}\n\n"
+            f"Please try again or contact support."
         )
     
     @staticmethod
-    def checking_episode_status() -> str:
+    def series_exists(title: str) -> str:
+        """Series already exists"""
+        return (
+            f"⚠️ Series already exists!\n\n"
+            f"📺 {title}\n\n"
+            f"This series already exists in the database.\n"
+            f"You can still add episodes to existing seasons."
+        )
+    
+    @staticmethod
+    def checking_episode_status(series_title: str, season_number: int) -> str:
         """Checking episode status"""
-        return "⏳ Checking episode status..."
+        return (
+            f"⏳ Checking episode status...\n\n"
+            f"📺 {series_title}\n"
+            f"🔢 Season {season_number}"
+        )
     
     @staticmethod
     def tmdb_data_unavailable() -> str:
