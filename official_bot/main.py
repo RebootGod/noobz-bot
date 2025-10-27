@@ -1,6 +1,14 @@
 """
 Official Noobz Telegram Bot - Main Entry Point
 Upload-focused bot with SQLite authentication.
+
+Handler Priority System (by group number):
+- Group 0: Unified Input Handler (PRIORITY - routes all text input to appropriate handlers)
+- Group 1: Auth Handler (for password authentication)
+- Group 2: Password Manager Handlers (for password creation flow)
+
+Lower group numbers = Higher priority = Executed first
+Handlers in same group execute in registration order.
 """
 
 import logging
@@ -350,15 +358,17 @@ def main():
             
             logger.info("Step 7: Registering unified input handler...")
             # Create unified input handler that handles ALL text input
+            # This is the PRIMARY handler for text input routing
             unified_handler = UnifiedInputHandler(movie_handler, movie_handler_2, series_handler)
             application.add_handler(
                 MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
                     unified_handler.handle_text_input
                 ),
-                group=0
+                group=0  # PRIORITY: Highest for text input routing
             )
-            logger.info("✅ Unified input handler registered (group 0)")
+            logger.info("✅ Unified input handler registered (group 0 - PRIORITY)")
+
             
             logger.info("Step 8: Registering callback handlers...")
             register_callback_handlers(application, services, help_handler, movie_handler, movie_handler_2, series_handler, series_handler_2)

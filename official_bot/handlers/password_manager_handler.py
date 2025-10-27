@@ -470,27 +470,31 @@ def register_handlers(application, session_service: SessionService, auth_service
     handler = PasswordManagerHandler(session_service, auth_service)
     
     # Register message handlers for password input
+    # Use group=2 (lower priority) so unified input handler (group=0) processes first
     application.add_handler(
         MessageHandler(
             filters.TEXT & ~filters.COMMAND,
             handler.handle_new_password_input
-        )
+        ),
+        group=2  # Lower priority than unified handler (group=0)
     )
     
     application.add_handler(
         MessageHandler(
             filters.TEXT & ~filters.COMMAND,
             handler.handle_password_confirmation
-        )
+        ),
+        group=2  # Lower priority than unified handler (group=0)
     )
     
     application.add_handler(
         MessageHandler(
             filters.TEXT & ~filters.COMMAND,
             handler.handle_password_notes
-        )
+        ),
+        group=2  # Lower priority than unified handler (group=0)
     )
     
-    logger.info("PasswordManagerHandler registered successfully")
+    logger.info("PasswordManagerHandler registered successfully (group=2)")
     
     return handler
