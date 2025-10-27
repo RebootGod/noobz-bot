@@ -227,12 +227,13 @@ class SeriesMessages:
         )
     
     @staticmethod
-    def tmdb_data_unavailable() -> str:
+    def tmdb_data_unavailable(series_title: str, season_number: int) -> str:
         """TMDB data not available"""
         return (
-            "⚠️ TMDB Data Incomplete\n\n"
-            "This season has no episode data on TMDB.\n"
-            "You can use Manual Mode to upload episodes."
+            f"⚠️ TMDB Data Incomplete\n\n"
+            f"<b>{series_title} - Season {season_number}</b>\n\n"
+            f"This season has no episode data on TMDB.\n"
+            f"You can use Manual Mode to upload episodes."
         )
 
 
